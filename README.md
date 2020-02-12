@@ -5,9 +5,9 @@ We propose a novel pairwise alignment tool using the deep reinforcement learning
 
 The code was implemented in the python 3.6 and TensorFlow 1.12.0.
 
-<img src = "https://user-images.githubusercontent.com/49563250/74353540-68e31a80-4dfd-11ea-90dc-dbb076f02d37.png"></img>
-<img src = "https://user-images.githubusercontent.com/49563250/74353543-6a144780-4dfd-11ea-9584-e2b21db82ab4.png"></img>
-<img src = "https://user-images.githubusercontent.com/49563250/74353547-6aacde00-4dfd-11ea-8103-de4ba0f9538d.png"></img>
+<img width = "400" src = "https://user-images.githubusercontent.com/49563250/74353540-68e31a80-4dfd-11ea-90dc-dbb076f02d37.png"></img>
+<img width = "400" src = "https://user-images.githubusercontent.com/49563250/74353543-6a144780-4dfd-11ea-9584-e2b21db82ab4.png"></img>
+<img width = "400" src = "https://user-images.githubusercontent.com/49563250/74353547-6aacde00-4dfd-11ea-8103-de4ba0f9538d.png"></img>
 
 ## Description of the project structure
 
