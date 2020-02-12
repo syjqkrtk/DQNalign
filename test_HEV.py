@@ -63,7 +63,7 @@ if not os.path.exists(path):
 startdate = time.localtime()
 
 start = time.time()
-seq = alignment.readseqs('lib\\HCV.txt')
+seq = alignment.readseqs('lib\\HEV.txt')
 
 """ 메인 학습 과정 """
 with tf.Session() as sess:
@@ -155,7 +155,7 @@ with tf.Session() as sess:
             #print(rT1,rT2)
     
             now = time.time()
-            #NWresult = np.max(NW.match(alignment.HCVseq[_],alignment.HCVseq[__]))
+            #NWresult = np.max(NW.match(alignment.HEVseq[_],alignment.HEVseq[__]))
             #now2 = time.time()
             #print(rT1, rT2, str(np.floor(now-past))+"s", str(np.floor(now-start))+"s", NWresult,str(np.floor(now2-now))+"s")
             print("result", lcslen + rT2o + rT2, "rawdata", lcslen, rT2o, rT2, str(np.floor(now-past))+"s", str(np.floor(now-start))+"s")
