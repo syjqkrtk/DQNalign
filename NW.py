@@ -5,7 +5,7 @@ import random
 
 n_length = 2       # The number of sequences
 n_states = [n_length, n_length, n_length] # The number of states
-n_actions = 3      # number of actions {match123, match12, match23, match31, gap1, gap2, gap3} : {(x+1,y+1,z+1), (x+1,y+1,z), (x,y+1,z+1), (x+1,y,z+1), (x+1,y,z), (x,y+1,z), (x,y,z+1)}
+n_actions = 3      # number of actions
 n_episodes = 1   # number of episodes to run
 l_seqs = 1000
 l_seqs2 = 1000
@@ -38,39 +38,6 @@ def rewardfun(s1, s2, a):
 
     return result
 
-'''
-def rewardfun(s1, s2, s3, a):
-    result = 0
-    if s1 == s2 and (a == 0 or a == 1):
-        result = result + reward[0]
-    elif s1 != s2 and (a == 0 or a == 1):
-        result = result + reward[2]
-    elif a != 6:
-        result = result + reward[1]
-    else:
-        result = result
-
-    if s2 == s3 and (a == 0 or a == 2):
-        result = result + reward[0]
-    elif s2 != s3 and (a == 0 or a == 2):
-        result = result + reward[2]
-    elif a != 4:
-        result = result + reward[1]
-    else:
-        result = result
-
-    if s3 == s1 and (a == 0 or a == 3):
-        result = result + reward[0]
-    elif s3 != s1 and (a == 0 or a == 3):
-        result = result + reward[2]
-    elif a != 5:
-        result = result + reward[1]
-    else:
-        result = result
-
-    return result
-'''
-
 def seqgen(l_seqs,n_length):
     seq1 = np.random.randint(4, size=l_seqs)
     seq2 = np.mod(seq1 + (np.random.rand(l_seqs)  < 0.1)*np.random.randint(4, size=l_seqs),4)
@@ -90,13 +57,6 @@ def seqgen(l_seqs,n_length):
                 temp5 = seq2[kk+count2:]
                 seq2 = np.append(np.append(temp2,np.random.randint(4, size=indel)),temp5)
                 count2 = count2 + indel
-                '''
-            else:
-                temp3 = seq3[0:kk+count3]
-                temp6 = seq3[kk+count3:]
-                seq3 = np.append(np.append(temp3,np.random.randint(4, size=indel)),temp6)
-                count3 = count3 + indel
-                '''
 
     extendseq = np.zeros(n_length - 1, dtype=int)-1
     seq1 = np.append(seq1, extendseq)
