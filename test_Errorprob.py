@@ -2,14 +2,14 @@ from alignment import gameEnv
 from Learning import *
 import time
 
-""" alignment 관련 파라미터 초기화 """
-l_seq = [500, 500]
+""" Initialize the parameters of the in-silico sequence generator """
+l_seq = [8000, 8000]
 win_size = 100
-maxI = 5 # indel 최대 길이
-p = [0.1,0.02] # SNP, indel 확률
-reward = [1,-1,-1] # match, mismatch, indel의 점수
+maxI = 10 # maximum indel length
+p = [0.1,0.02] # The probability of SNP, indel
+reward = [1,-1,-1] # Alignment score of the match, mismatch, indel
 
-""" 각종 파라미터 초기화 """
+""" Initialize the parameters of the DQN algorithm """
 batch_size = 32 #How many experiences to use for each training step.
 update_freq = 4 #How often to perform a training step.
 y = .99 #Discount factor on the target Q-values
@@ -25,58 +25,47 @@ h_size = 512 #The size of the final convolutional layer before splitting it into
 tau = 0.001 #Rate to update target network toward primary network
 n_action = 3
 
-""" 설정한 환경 불러오기 """
+""" Define sequence alignment environment """
 env = gameEnv(reward,l_seq,win_size,p,maxI,0)
 testenv1 = gameEnv(reward,l_seq,win_size,p,maxI,1)
 testenv2 = gameEnv(reward,l_seq,win_size,p,maxI,2)
 
-""" 메인 네트워크 정의 """
+""" Define Deep reinforcement learning network """
 tf.reset_default_graph()
 mainQN = Qnetwork(h_size,env)
 targetQN = Qnetwork(h_size,env)
-
 init = tf.global_variables_initializer()
-
 saver = tf.train.Saver()
-
 trainables = tf.trainable_variables()
-
-""" 타겟 네트워크 정의 """
 targetOps = updateTargetGraph(trainables, tau)
-
-""" 전체 버퍼 정의 """
 myBuffer = experience_buffer()
 
-""" pre_train_step(완전 랜덤)을 지나고 학습 과정 초기에 얼마나 랜덤을 고려할지 """
+""" Exploration strategy """
 e = startE
 stepDrop = (startE - endE) / annealing_steps
 
-# 전체 리워드나 스텝 같은걸 저장하기 위한 변수 설정
+""" Initialize the variables """
 jList = []
 rList = []
 total_steps = 0
 
-""" 모델 저장을 위한 부분 """
 if not os.path.exists(path):
     os.makedirs(path)
 
 startdate = time.localtime()
 
 start = time.time()
-""" 메인 학습 과정 """
+
+""" Main test step """
 with tf.Session() as sess:
     #sess = tf.Session(config=tf.ConfigProto(device_count={'GPU': 0}))
-    # 정의한 모델의 초기화
     sess.run(init)
     past = time.time()
-    
-    # 저장해둔 모델을 불러올 경우, weight 값을 불러옴
     print('Loading Model...')
     ckpt = tf.train.get_checkpoint_state(path)
     saver.restore(sess, ckpt.model_checkpoint_path)
-        
-    # 메인 학습과정의 메인 학습과정
     now2 = time.time()
+    
     sr1 = processState(testenv1.test(1))
     rT1 = 0
     j = 0
