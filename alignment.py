@@ -27,18 +27,18 @@ RealSeq3 = np.zeros(np.size(RealTemp3))
 for _ in range(np.size(RealTemp3)):
     RealSeq3[_] = (RealTemp3[_] == 'A') + 2 * (RealTemp3[_] == 'C') + 3 * (RealTemp3[_] == 'G') + 4 * (RealTemp3[_] == 'T') - 1
 
-Real = open('lib\\HCV.txt','r')
-HCVname = []
-HCVseq = []
+Real = open('lib\\HEV.txt','r')
+HEVname = []
+HEVseq = []
 for __ in range(47):
-    HCVname.append(Real.readline().replace('\n','').replace('>',''))
+    HEVname.append(Real.readline().replace('\n','').replace('>',''))
     RealTemp = Real.readline().replace('\n','')
     RealSeq = np.zeros(len(RealTemp),dtype=int)
     for _ in range(len(RealTemp)):
         RealSeq[_] = (RealTemp[_] == 'A') + 2 * (RealTemp[_] == 'C') + 3 * (RealTemp[_] == 'G') + 4 * (RealTemp[_] == 'T') - 1
-    HCVseq.append(RealSeq)
-#print(HCVname)
-#print(HCVseq)
+    HEVseq.append(RealSeq)
+#print(HEVname)
+#print(HEVseq)
 
 def readseq(filename):
     file = open(filename,'r')
@@ -46,14 +46,14 @@ def readseq(filename):
     return seq
 
 def readseqs(filename):
-    Real = open('lib\\HCV.txt','r')
-    HCVname = []
-    HCVseq = []
+    Real = open('lib\\HEV.txt','r')
+    HEVname = []
+    HEVseq = []
     for __ in range(47):
-        HCVname.append(Real.readline().replace('\n','').replace('>',''))
+        HEVname.append(Real.readline().replace('\n','').replace('>',''))
         RealTemp = Real.readline().replace('\n','')
-        HCVseq.append(RealTemp)
-    return HCVseq
+        HEVseq.append(RealTemp)
+    return HEVseq
 
 def preprocess(seq1, seq2):
     return lcs.longestSubstring(seq1,seq2)
@@ -173,8 +173,8 @@ class gameEnv():
             self.sizeS2 = np.size(self.seq2)
         elif str < 20000:
             #print(int(np.floor((str-10000)/100)), np.mod((str-10000),100))
-            self.seq1 = HCVseq[int(np.floor((str-10000)/100))]
-            self.seq2 = HCVseq[np.mod((str-10000),100)]
+            self.seq1 = HEVseq[int(np.floor((str-10000)/100))]
+            self.seq2 = HEVseq[np.mod((str-10000),100)]
             self.sizeS1 = np.size(self.seq1)
             self.sizeS2 = np.size(self.seq2)
             print(np.size(self.seq1), np.size(self.seq2))
