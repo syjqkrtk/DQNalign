@@ -7,9 +7,9 @@ import alignment
 """ Initialize the parameters of the in-silico sequence generator """
 l_seq = [8000, 8000]
 win_size = 100
-maxI = 10 # indel 최대 길이
-p = [0.1,0.02] # SNP, indel 확률
-reward = [1,-1,-1] # match, mismatch, indel의 점수
+maxI = 10 # maximum indel length
+p = [0.1,0.02] # The probability of SNP, indel
+reward = [1,-1,-1] # Alignment score of the match, mismatch, indel
 
 """ Initialize the parameters of the DQN algorithm """
 batch_size = 32 #How many experiences to use for each training step.
