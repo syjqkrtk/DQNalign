@@ -66,7 +66,7 @@ start = time.time()
 
 """ 메인 학습 과정 """
 with tf.Session() as sess:
-    sess = tf.Session(config=tf.ConfigProto(device_count={'GPU': 0}))
+    #sess = tf.Session(config=tf.ConfigProto(device_count={'GPU': 0}))
     # 정의한 모델의 초기화
     sess.run(init)
     
