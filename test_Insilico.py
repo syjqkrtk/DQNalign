@@ -4,14 +4,14 @@ import time
 import NW
 import alignment
 
-""" alignment 관련 파라미터 초기화 """
+""" Initialize the parameters of the in-silico sequence generator """
 l_seq = [8000, 8000]
-win_size = 10
-maxI2 = 10 # indel 최대 길이
-p = [0.1,0.02] # SNP, indel 확률
-reward = [1,-1,-1] # match, mismatch, indel의 점수
+win_size = 100
+maxI = 10 # maximum indel length
+p = [0.1,0.02] # The probability of SNP, indel
+reward = [1,-1,-1] # Alignment score of the match, mismatch, indel
 
-""" 각종 파라미터 초기화 """
+""" Initialize the parameters of the DQN algorithm """
 batch_size = 32 #How many experiences to use for each training step.
 update_freq = 4 #How often to perform a training step.
 y = .99 #Discount factor on the target Q-values
@@ -27,36 +27,28 @@ h_size = 512 #The size of the final convolutional layer before splitting it into
 tau = 0.001 #Rate to update target network toward primary network
 n_action = 3
 
-""" 설정한 환경 불러오기 """
+""" Define sequence alignment environment """
 env = gameEnv(reward,l_seq,win_size,p,maxI2,0)
 
-""" 메인 네트워크 정의 """
+""" Define Deep reinforcement learning network """
 tf.reset_default_graph()
 mainQN = Qnetwork(h_size,env)
 targetQN = Qnetwork(h_size,env)
-
 init = tf.global_variables_initializer()
-
 saver = tf.train.Saver()
-
 trainables = tf.trainable_variables()
-
-""" 타겟 네트워크 정의 """
 targetOps = updateTargetGraph(trainables, tau)
-
-""" 전체 버퍼 정의 """
 myBuffer = experience_buffer()
 
-""" pre_train_step(완전 랜덤)을 지나고 학습 과정 초기에 얼마나 랜덤을 고려할지 """
+""" Exploration strategy """
 e = startE
 stepDrop = (startE - endE) / annealing_steps
 
-# 전체 리워드나 스텝 같은걸 저장하기 위한 변수 설정
+""" Initialize the variables """
 jList = []
 rList = []
 total_steps = 0
 
-""" 모델 저장을 위한 부분 """
 if not os.path.exists(path):
     os.makedirs(path)
 
@@ -64,13 +56,10 @@ startdate = time.localtime()
 
 start = time.time()
 
-""" 메인 학습 과정 """
+""" Main test step """
 with tf.Session() as sess:
     #sess = tf.Session(config=tf.ConfigProto(device_count={'GPU': 0}))
-    # 정의한 모델의 초기화
     sess.run(init)
-    
-    # 저장해둔 모델을 불러올 경우, weight 값을 불러옴
     print('Loading Model...')
     ckpt = tf.train.get_checkpoint_state(path) 
     saver.restore(sess, ckpt.model_checkpoint_path)
@@ -81,8 +70,8 @@ with tf.Session() as sess:
         print(_)
         for __ in range(10):
 
-            maxI = 2 # indel 최대 길이
-            p = [SNPprob[_],0] # SNP, indel 확률
+            maxI = 2
+            p = [SNPprob[_],0]
             testenv = gameEnv(reward,l_seq,win_size,p,maxI,0)
             seq1 = testenv.seq1
             seq2 = testenv.seq2
@@ -99,9 +88,6 @@ with tf.Session() as sess:
             j = 0
             rT2 = 0
             if testenv1.sizeS1 > 0 and testenv1.sizeS2 > 0:
-                # print(seq1[i-1::-1])
-                # print(seq2[j-1::-1])
-                # testenv1 = gameEnv(reward,l_seq,win_size,p,maxI,-1,seq1[:start1],seq2[:start2])
                 while j < testenv1.sizeS1 + testenv1.sizeS2:
                     if testenv1.seq1[testenv1.x] == testenv1.seq2[testenv1.y]:
                         seq1end = min(testenv1.x + win_size - 1, testenv1.sizeS1 - 1)
@@ -127,10 +113,7 @@ with tf.Session() as sess:
                     if d == True:
                         break
 
-            # print(rT1, rT2)
             rT2o = rT2
-            # print(seq1[i+k:])
-            # print(seq2[j+k:])
             testenv2 = gameEnv(reward, l_seq, win_size, p, maxI, -1, seq1[start1 + lcslen:], seq2[start2 + lcslen:])
             rT1 = 0
             j = 0
@@ -160,19 +143,16 @@ with tf.Session() as sess:
                     # print(j, a, xx, testenv1.x, yy,testenv1.y, rT1)
                     if d == True:
                         break
-            # print(rT1,rT2)
 
             now = time.time()
             # NWresult = np.max(NW.match(alignment.HCVseq[_],alignment.HCVseq[__]))
-            # now2 = time.time()
-            # print(rT1, rT2, str(np.floor(now-past))+"s", str(np.floor(now-start))+"s", NWresult,str(np.floor(now2-now))+"s")
             print("result", lcslen + rT2o + rT2, "rawdata", lcslen, rT2o, rT2, str(np.floor(now - past)) + "s",
                   str(np.floor(now - start)) + "s")
 
             filename = "result\\result%04d%02d%02d%02d%02d%02d_%d_%d.txt" % (
                 startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
                 startdate.tm_sec, win_size, maxI2)
-            # filename = "result\\result20190526145945.txt"
+
             file = open(filename, "a")
             file.write(
                 str(lcslen + rT2o + rT2) + " " + str(np.floor(now - past)) + " " + str(np.floor(now - start)) + "\n")
@@ -186,8 +166,8 @@ with tf.Session() as sess:
         print(_)
         for __ in range(10):
 
-            maxI = maxIndel[_] # indel 최대 길이
-            p = [0,0.1] # SNP, indel 확률
+            maxI = maxIndel[_]
+            p = [0,0.1]
             testenv = gameEnv(reward,l_seq,win_size,p,maxI,0)
             seq1 = testenv.seq1
             seq2 = testenv.seq2
@@ -204,9 +184,6 @@ with tf.Session() as sess:
             j = 0
             rT2 = 0
             if testenv1.sizeS1 > 0 and testenv1.sizeS2 > 0:
-                # print(seq1[i-1::-1])
-                # print(seq2[j-1::-1])
-                # testenv1 = gameEnv(reward,l_seq,win_size,p,maxI,-1,seq1[:start1],seq2[:start2])
                 while j < testenv1.sizeS1 + testenv1.sizeS2:
                     if testenv1.seq1[testenv1.x] == testenv1.seq2[testenv1.y]:
                         seq1end = min(testenv1.x + win_size - 1, testenv1.sizeS1 - 1)
@@ -232,10 +209,7 @@ with tf.Session() as sess:
                     if d == True:
                         break
 
-            # print(rT1, rT2)
             rT2o = rT2
-            # print(seq1[i+k:])
-            # print(seq2[j+k:])
             testenv2 = gameEnv(reward, l_seq, win_size, p, maxI, -1, seq1[start1 + lcslen:], seq2[start2 + lcslen:])
             rT1 = 0
             j = 0
@@ -265,19 +239,16 @@ with tf.Session() as sess:
                     # print(j, a, xx, testenv1.x, yy,testenv1.y, rT1)
                     if d == True:
                         break
-            # print(rT1,rT2)
 
             now = time.time()
             # NWresult = np.max(NW.match(alignment.HCVseq[_],alignment.HCVseq[__]))
-            # now2 = time.time()
-            # print(rT1, rT2, str(np.floor(now-past))+"s", str(np.floor(now-start))+"s", NWresult,str(np.floor(now2-now))+"s")
             print("result", lcslen + rT2o + rT2, "rawdata", lcslen, rT2o, rT2, str(np.floor(now - past)) + "s",
                   str(np.floor(now - start)) + "s")
 
             filename = "result\\result%04d%02d%02d%02d%02d%02d_%d_%d.txt" % (
                 startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
                 startdate.tm_sec, win_size, maxI2)
-            # filename = "result\\result20190526145945.txt"
+
             file = open(filename, "a")
             file.write(
                 str(lcslen + rT2o + rT2) + " " + str(np.floor(now - past)) + " " + str(np.floor(now - start)) + "\n")
@@ -309,9 +280,6 @@ with tf.Session() as sess:
             j = 0
             rT2 = 0
             if testenv1.sizeS1 > 0 and testenv1.sizeS2 > 0:
-                # print(seq1[i-1::-1])
-                # print(seq2[j-1::-1])
-                # testenv1 = gameEnv(reward,l_seq,win_size,p,maxI,-1,seq1[:start1],seq2[:start2])
                 while j < testenv1.sizeS1 + testenv1.sizeS2:
                     if testenv1.seq1[testenv1.x] == testenv1.seq2[testenv1.y]:
                         seq1end = min(testenv1.x + win_size - 1, testenv1.sizeS1 - 1)
@@ -337,10 +305,7 @@ with tf.Session() as sess:
                     if d == True:
                         break
 
-            # print(rT1, rT2)
             rT2o = rT2
-            # print(seq1[i+k:])
-            # print(seq2[j+k:])
             testenv2 = gameEnv(reward, l_seq, win_size, p, maxI, -1, seq1[start1 + lcslen:], seq2[start2 + lcslen:])
             rT1 = 0
             j = 0
@@ -370,19 +335,16 @@ with tf.Session() as sess:
                     # print(j, a, xx, testenv1.x, yy,testenv1.y, rT1)
                     if d == True:
                         break
-            # print(rT1,rT2)
 
             now = time.time()
             # NWresult = np.max(NW.match(alignment.HCVseq[_],alignment.HCVseq[__]))
-            # now2 = time.time()
-            # print(rT1, rT2, str(np.floor(now-past))+"s", str(np.floor(now-start))+"s", NWresult,str(np.floor(now2-now))+"s")
             print("result", lcslen + rT2o + rT2, "rawdata", lcslen, rT2o, rT2, str(np.floor(now - past)) + "s",
                   str(np.floor(now - start)) + "s")
 
             filename = "result\\result%04d%02d%02d%02d%02d%02d_%d_%d.txt" % (
                 startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
                 startdate.tm_sec, win_size, maxI2)
-            # filename = "result\\result20190526145945.txt"
+
             file = open(filename, "a")
             file.write(
                 str(lcslen + rT2o + rT2) + " " + str(np.floor(now - past)) + " " + str(np.floor(now - start)) + "\n")
@@ -395,8 +357,8 @@ with tf.Session() as sess:
         print(_)
         for __ in range(10):
 
-            maxI = maxIndel[_]  # indel 최대 길이
-            p = [0.1,0.1] # SNP, indel 확률
+            maxI = maxIndel[_]
+            p = [0.1,0.1]
             testenv = gameEnv(reward,l_seq,win_size,p,maxI,0)
             seq1 = testenv.seq1
             seq2 = testenv.seq2
@@ -413,9 +375,6 @@ with tf.Session() as sess:
             j = 0
             rT2 = 0
             if testenv1.sizeS1 > 0 and testenv1.sizeS2 > 0:
-                # print(seq1[i-1::-1])
-                # print(seq2[j-1::-1])
-                # testenv1 = gameEnv(reward,l_seq,win_size,p,maxI,-1,seq1[:start1],seq2[:start2])
                 while j < testenv1.sizeS1 + testenv1.sizeS2:
                     if testenv1.seq1[testenv1.x] == testenv1.seq2[testenv1.y]:
                         seq1end = min(testenv1.x + win_size - 1, testenv1.sizeS1 - 1)
@@ -441,10 +400,8 @@ with tf.Session() as sess:
                     if d == True:
                         break
 
-            # print(rT1, rT2)
             rT2o = rT2
-            # print(seq1[i+k:])
-            # print(seq2[j+k:])
+            
             testenv2 = gameEnv(reward, l_seq, win_size, p, maxI, -1, seq1[start1 + lcslen:], seq2[start2 + lcslen:])
             rT1 = 0
             j = 0
@@ -474,19 +431,16 @@ with tf.Session() as sess:
                     # print(j, a, xx, testenv1.x, yy,testenv1.y, rT1)
                     if d == True:
                         break
-            # print(rT1,rT2)
 
             now = time.time()
             # NWresult = np.max(NW.match(alignment.HCVseq[_],alignment.HCVseq[__]))
-            # now2 = time.time()
-            # print(rT1, rT2, str(np.floor(now-past))+"s", str(np.floor(now-start))+"s", NWresult,str(np.floor(now2-now))+"s")
             print("result", lcslen + rT2o + rT2, "rawdata", lcslen, rT2o, rT2, str(np.floor(now - past)) + "s",
                   str(np.floor(now - start)) + "s")
 
             filename = "result\\result%04d%02d%02d%02d%02d%02d_%d_%d.txt" % (
                 startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
                 startdate.tm_sec, win_size, maxI2)
-            # filename = "result\\result20190526145945.txt"
+
             file = open(filename, "a")
             file.write(
                 str(lcslen + rT2o + rT2) + " " + str(np.floor(now - past)) + " " + str(np.floor(now - start)) + "\n")
@@ -499,8 +453,8 @@ with tf.Session() as sess:
         print(_)
         for __ in range(10):
 
-            maxI = 2    # indel 최대 길이
-            p = [1,0] # SNP, indel 확률
+            maxI = 2
+            p = [1,0]
             testenv = gameEnv(reward,l_seq,win_size,p,maxI,0)
             seq1 = testenv.seq1
             seq2 = testenv.seq2
@@ -517,9 +471,6 @@ with tf.Session() as sess:
             j = 0
             rT2 = 0
             if testenv1.sizeS1 > 0 and testenv1.sizeS2 > 0:
-                # print(seq1[i-1::-1])
-                # print(seq2[j-1::-1])
-                # testenv1 = gameEnv(reward,l_seq,win_size,p,maxI,-1,seq1[:start1],seq2[:start2])
                 while j < testenv1.sizeS1 + testenv1.sizeS2:
                     if testenv1.seq1[testenv1.x] == testenv1.seq2[testenv1.y]:
                         seq1end = min(testenv1.x + win_size - 1, testenv1.sizeS1 - 1)
@@ -545,10 +496,7 @@ with tf.Session() as sess:
                     if d == True:
                         break
 
-            # print(rT1, rT2)
             rT2o = rT2
-            # print(seq1[i+k:])
-            # print(seq2[j+k:])
             testenv2 = gameEnv(reward, l_seq, win_size, p, maxI, -1, seq1[start1 + lcslen:], seq2[start2 + lcslen:])
             rT1 = 0
             j = 0
@@ -578,19 +526,16 @@ with tf.Session() as sess:
                     # print(j, a, xx, testenv1.x, yy,testenv1.y, rT1)
                     if d == True:
                         break
-            # print(rT1,rT2)
 
             now = time.time()
             # NWresult = np.max(NW.match(alignment.HCVseq[_],alignment.HCVseq[__]))
-            # now2 = time.time()
-            # print(rT1, rT2, str(np.floor(now-past))+"s", str(np.floor(now-start))+"s", NWresult,str(np.floor(now2-now))+"s")
             print("result", lcslen + rT2o + rT2, "rawdata", lcslen, rT2o, rT2, str(np.floor(now - past)) + "s",
                   str(np.floor(now - start)) + "s")
 
             filename = "result\\result%04d%02d%02d%02d%02d%02d_%d_%d.txt" % (
                 startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
                 startdate.tm_sec, win_size, maxI2)
-            # filename = "result\\result20190526145945.txt"
+
             file = open(filename, "a")
             file.write(
                 str(lcslen + rT2o + rT2) + " " + str(np.floor(now - past)) + " " + str(np.floor(now - start)) + "\n")
