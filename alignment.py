@@ -75,7 +75,7 @@ def zipfian(s,N):
 
 class gameEnv():
     def __init__(self, reward, seq_size, win_size, p, maxI, str, seq1=[], seq2=[]):
-        # reward는 match, mismatch, indel의 순서
+        # reward must be defined as the score of [match, mismatch, indel]
         self.reward = reward
         self.sizeS1 = seq_size[0]
         self.sizeS2 = seq_size[1]
