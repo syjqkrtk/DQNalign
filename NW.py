@@ -3,7 +3,7 @@ import numpy as np
 import time
 import random
 
-n_length = 2       # 염기서열 몇개씩 볼지 parameter (x,y)
+n_length = 2       # The number of sequences (Until now, only 2 can be supported)
 n_states = [n_length, n_length, n_length] # 총 state의 가짓수
 n_actions = 3      # number of actions {match123, match12, match23, match31, gap1, gap2, gap3} : {(x+1,y+1,z+1), (x+1,y+1,z), (x,y+1,z+1), (x+1,y,z+1), (x+1,y,z), (x,y+1,z), (x,y,z+1)}
 n_episodes = 1   # number of episodes to run
