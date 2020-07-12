@@ -54,8 +54,8 @@ train_model = model()
 init = train_model.init
 saver = train_model.saver
 
-seq1 = readseq.readseq('lib/Ecoli_1.txt')
-seq2 = readseq.readseq('lib/Ecoli_2.txt')
+seq1 = readseq.readseq('lib/Ecoli_31.txt')
+seq2 = readseq.readseq('lib/Ecoli_42.txt')
 
 if not os.path.exists(train_env.path):
     os.makedirs(train_env.path)
@@ -98,109 +98,57 @@ with tf.Session() as sess:
     past = time.time()
 
     c = conventional.Clustal(True,seq1,seq2)
-    anchors, anchore = c.preprocess()
+    accum = c.align_process()
 
-    if (anchors[0][0] > 0) and (anchors[0][1] > 0):
-        agent.set(seq1[anchors[0][0]-1::-1]+"A",seq2[anchors[0][1]-1::-1]+"A")
-        if FLAGS.show_align and FLAGS.print_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess,record)
-            dot_plot[:anchors[0][0],:anchors[0][1]] = dot_plot1[::-1,::-1]
-            record.reverse(anchors[0][0]-1,anchors[0][1]-1)
-        elif FLAGS.show_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess)
-            dot_plot[:anchors[0][0],:anchors[0][1]] = dot_plot1[::-1,::-1]
-        elif FLAGS.print_align:
-            rT1, rT2, processingtime, j = agent.play(sess, record)
-            record.reverse(anchors[0][0]-1,anchors[0][1]-1)
-        else:
-            rT1, rT2, processingtime, j = agent.play(sess)
+    max_score = np.max(accum[0][:])
+    index = np.argmax(accum[0][:])
+    ptemp = [0,0]
+    path = []
 
-        rT2o += rT2
-        processingtimeo += processingtime
-        jo += j
+    while accum[0][index] > 0:
+        last_point = [accum[1][index],accum[2][index]]
+        index =accum[3][index]
+        path.append([accum[1][index],accum[2][index]])
 
-    for i in range(len(anchors)-1):
-        print(i+1, "/", len(anchors), "anchors are finished")
-        if (anchore[i][1] >= anchors[i+1][1]):
-            anchors[i+1][0] = anchors[i][0]
-            anchors[i+1][1] = anchors[i][1]
-            anchore[i+1][0] = anchore[i][0]
-            anchore[i+1][1] = anchore[i][1]
-            continue
+    path = path[::-1]
+    if (seq1[path[0][0]] != seq2[path[0][1]]) or (path[1][0] - path[0][0] > 1) or (path[1][1] - path[0][1] > 1):
+        path = path[1:]
 
-        stemp = 0
-        print(anchors[i][0],anchore[i][0],anchors[i][1],anchore[i][1])
-        if FLAGS.show_align:
-            for k in range(anchore[i][0]-anchors[i][0]):
-                dot_plot[anchors[i][0]+k,anchors[i][1]+k]=0
-        if FLAGS.print_align:
-            stemp = record.record([anchors[i][0],anchore[i][0]],[anchors[i][1],anchore[i][1]],-1,seq1[anchors[i][0]:anchore[i][0]],seq2[anchors[i][1]:anchore[i][1]])
-        else:
-            for k in range(anchore[i][0]-anchors[i][0]):
-                if seq1[anchors[i][0]+k] == seq2[anchors[i][1]+k]:
-                    stemp += 1
-                else:
-                    stemp += 0
-
-        rT2o += stemp
-        jo += anchore[i][0]-anchors[i][0]
-
-        print(anchore[i][0],anchors[i+1][0],anchore[i][1],anchors[i+1][1])
-        agent.set(seq1[anchore[i][0]:anchors[i+1][0]+1],seq2[anchore[i][1]:anchors[i+1][1]+1])
-        if FLAGS.show_align and FLAGS.print_align:
-            index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess, record)
-            dot_plot[anchors[i][0]:anchore[i][0],anchors[i][1]:anchore[i][1]] = dot_plot1
-            record.shift(index,anchore[i][0],anchore[i][1])
-        elif FLAGS.show_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess)
-            dot_plot[anchors[i][0]:anchore[i][0],anchors[i][1]:anchore[i][1]] = dot_plot1
-        elif FLAGS.print_align:
-            index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j = agent.play(sess, record)
-            record.shift(index,anchore[i][0],anchore[i][1])
-        else:
-            rT1, rT2, processingtime, j = agent.play(sess)
-
-        rT2o += rT2
-        processingtimeo += processingtime
-        jo += j
-
-    stemp = 0
-    if FLAGS.show_align:
-        for k in range(anchore[-1][0]-anchors[-1][0]):
-            dot_plot[anchors[-1][0]+k,anchors[-1][1]+k]=0
-    if FLAGS.print_align:
-        stemp = record.record([anchors[-1][0],anchore[-1][0]],[anchors[-1][1],anchore[-1][1]],-1,seq1[anchors[-1][0]:anchore[-1][0]],seq2[anchors[-1][1]:anchore[-1][1]])
-    else:
-        for k in range(anchore[-1][0]-anchors[-1][0]):
-            if seq1[anchors[-1][0]+k] == seq2[anchors[-1][1]+k]:
-                stemp += 1
+    for i in range(len(path)):
+        print(i+1, "/", len(path), "anchors are finished")
+        #print(ptemp, path[i])
+        processingtime = 0
+        if ((path[i][0] - ptemp[0] > 1) or (path[i][1] - ptemp[1] > 1)) and (i > 0):
+            agent.set(seq1[ptemp[0]+1:path[i][0]+1]+"A", seq2[ptemp[1]+1:path[i][1]+1]+"A")
+            if FLAGS.show_align and FLAGS.print_align:
+                index = np.size(record.xtemp)
+                rT1, rT2, processingtime, j, dot_plot = agent.play(sess,record)
+                dot_plot[ptemp[0]+1:path[i][0]+1,ptemp[1]+1:path[i][1]+1] = dot_plot1
+                record.shift(index,ptemp[0]+1,ptemp[1]+1)
+            elif FLAGS.show_align:
+                rT1, rT2, processingtime, j, dot_plot = agent.play(sess)
+                dot_plot[ptemp[0]+1:path[i][0]+1,ptemp[1]+1:path[i][1]+1] = dot_plot1
+            elif FLAGS.print_align:
+                index = np.size(record.xtemp)
+                rT1, rT2, processingtime, j = agent.play(sess,record)
+                record.shift(index,ptemp[0]+1,ptemp[1]+1)
             else:
-                stemp += 0
-
-    rT2o += stemp
-
-    if (anchore[-1][0] < len(seq1)) and (anchore[-1][1] < len(seq2)):
-        agent.set(seq1[anchore[-1][0]:]+"A",seq2[anchore[-1][1]:]+"A")
-        if FLAGS.show_align and FLAGS.print_align:
-            index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess, record)
-            dot_plot[anchore[-1][0]:,anchore[-1][1]:] = dot_plot1
-            record.shift(index,anchore[-1][0],anchore[-1][1])
-        elif FLAGS.show_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess)
-            dot_plot[anchore[-1][0]:,anchore[-1][1]:] = dot_plot1
-        elif FLAGS.print_align:
-            index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j = agent.play(sess, record)
-            record.shift(index,anchore[-1][0],anchore[-1][1])
+                rT1, rT2, processingtime, j = agent.play(sess)
         else:
-            rT1, rT2, processingtime, j = agent.play(sess)
+            if FLAGS.show_align:
+                dotplot[path[i][0],path[i][1]]=0
+            if FLAGS.print_align:
+                rT2 = record.record(path[i][0],path[i][1],0,seq1[path[i][0]],seq2[path[i][1]])
+            else:
+                if seq1[path[i][0]] == seq2[path[i][1]]:
+                    rT2 = 1
+                else:
+                    rT2 = 0
 
         rT2o += rT2
         processingtimeo += processingtime
-        jo += j
+                
+        ptemp = path[i]
 
     now = time.time()
     #NWresult = np.max(NW.match(alignment.HEVseq[_],alignment.HEVseq[__]))
@@ -211,7 +159,7 @@ with tf.Session() as sess:
         startdate.tm_sec, train_env.win_size, train_env.maxI)
 
     file = open(filename,"a")
-    file.write(str(rT2o)+" "+str(now-past)+" "+str(now-start)+"\n")
+    file.write(str(rT2o)+" "+str(processingtimeo)+" "+str(now-past)+" "+str(now-start)+"\n")
     file.close()
 
     if FLAGS.show_align:

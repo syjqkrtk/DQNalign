@@ -54,8 +54,8 @@ train_model = model()
 init = train_model.init
 saver = train_model.saver
 
-seq1 = readseq.readseq('lib/Ecoli_1.txt')
-seq2 = readseq.readseq('lib/Ecoli_2.txt')
+seq1 = readseq.readseq('lib/Ecoli_31.txt')
+seq2 = readseq.readseq('lib/Ecoli_42.txt')
 
 if not os.path.exists(train_env.path):
     os.makedirs(train_env.path)
@@ -97,116 +97,64 @@ with tf.Session() as sess:
     #print("lcs len 2",start2,lcslen,len(seq2)-start2-lcslen)
     past = time.time()
 
-    c = conventional.Clustal(True,seq1,seq2)
-    anchors, anchore = c.preprocess()
+    m = conventional.MUMmer(True,"lib/Ecoli_31.fasta","lib/Ecoli_42.fasta",["Ecoli_31","Ecoli_42"],"result/SSD+MUMmer/result%04d%02d%02d%02d%02d%02d_%d_%d_Ecoli" % (
+        startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min, startdate.tm_sec, train_env.win_size, train_env.maxI))
+    m.align()
+    coords1, coords2, aligns1, aligns2, score = m.export_info()
+    now = time.time()
+    print("MUMmer result", score, "time", str(now-past)+"s", str(now-start)+"s")
 
-    if (anchors[0][0] > 0) and (anchors[0][1] > 0):
-        agent.set(seq1[anchors[0][0]-1::-1]+"A",seq2[anchors[0][1]-1::-1]+"A")
-        if FLAGS.show_align and FLAGS.print_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess,record)
-            dot_plot[:anchors[0][0],:anchors[0][1]] = dot_plot1[::-1,::-1]
-            record.reverse(anchors[0][0]-1,anchors[0][1]-1)
-        elif FLAGS.show_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess)
-            dot_plot[:anchors[0][0],:anchors[0][1]] = dot_plot1[::-1,::-1]
-        elif FLAGS.print_align:
-            rT1, rT2, processingtime, j = agent.play(sess, record)
-            record.reverse(anchors[0][0]-1,anchors[0][1]-1)
-        else:
-            rT1, rT2, processingtime, j = agent.play(sess)
-
-        rT2o += rT2
-        processingtimeo += processingtime
-        jo += j
-
-    for i in range(len(anchors)-1):
-        print(i+1, "/", len(anchors), "anchors are finished")
-        if (anchore[i][1] >= anchors[i+1][1]):
-            anchors[i+1][0] = anchors[i][0]
-            anchors[i+1][1] = anchors[i][1]
-            anchore[i+1][0] = anchore[i][0]
-            anchore[i+1][1] = anchore[i][1]
-            continue
-
-        stemp = 0
-        print(anchors[i][0],anchore[i][0],anchors[i][1],anchore[i][1])
-        if FLAGS.show_align:
-            for k in range(anchore[i][0]-anchors[i][0]):
-                dot_plot[anchors[i][0]+k,anchors[i][1]+k]=0
+    for i in range(len(coords1)-1):
+        processingtime = 0
         if FLAGS.print_align:
-            stemp = record.record([anchors[i][0],anchore[i][0]],[anchors[i][1],anchore[i][1]],-1,seq1[anchors[i][0]:anchore[i][0]],seq2[anchors[i][1]:anchore[i][1]])
+            rT2 = record.record([coords1[i][0],coords1[i][1]+1],[coords2[i][0],coords2[i][1]+1],-1,aligns1[i],aligns2[i])
         else:
-            for k in range(anchore[i][0]-anchors[i][0]):
-                if seq1[anchors[i][0]+k] == seq2[anchors[i][1]+k]:
-                    stemp += 1
-                else:
-                    stemp += 0
+            rT2 = np.sum(np.array(list(aligns1[i]))==np.array(list(aligns2[i])))
 
-        rT2o += stemp
-        jo += anchore[i][0]-anchors[i][0]
-
-        print(anchore[i][0],anchors[i+1][0],anchore[i][1],anchors[i+1][1])
-        agent.set(seq1[anchore[i][0]:anchors[i+1][0]+1],seq2[anchore[i][1]:anchors[i+1][1]+1])
-        if FLAGS.show_align and FLAGS.print_align:
-            index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess, record)
-            dot_plot[anchors[i][0]:anchore[i][0],anchors[i][1]:anchore[i][1]] = dot_plot1
-            record.shift(index,anchore[i][0],anchore[i][1])
-        elif FLAGS.show_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess)
-            dot_plot[anchors[i][0]:anchore[i][0],anchors[i][1]:anchore[i][1]] = dot_plot1
-        elif FLAGS.print_align:
-            index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j = agent.play(sess, record)
-            record.shift(index,anchore[i][0],anchore[i][1])
-        else:
-            rT1, rT2, processingtime, j = agent.play(sess)
-
+        #print(rT2, coords1[i][1]-coords1[i][0])
         rT2o += rT2
-        processingtimeo += processingtime
-        jo += j
 
-    stemp = 0
-    if FLAGS.show_align:
-        for k in range(anchore[-1][0]-anchors[-1][0]):
-            dot_plot[anchors[-1][0]+k,anchors[-1][1]+k]=0
-    if FLAGS.print_align:
-        stemp = record.record([anchors[-1][0],anchore[-1][0]],[anchors[-1][1],anchore[-1][1]],-1,seq1[anchors[-1][0]:anchore[-1][0]],seq2[anchors[-1][1]:anchore[-1][1]])
-    else:
-        for k in range(anchore[-1][0]-anchors[-1][0]):
-            if seq1[anchors[-1][0]+k] == seq2[anchors[-1][1]+k]:
-                stemp += 1
+        if ((coords1[i+1][0] - coords1[i][1] > 1) and (coords2[i+1][0] - coords2[i][1] > 1)):
+            agent.set(seq1[coords1[i][1]+1:coords1[i+1][0]]+"A", seq2[coords2[i][1]+1:coords2[i+1][0]]+"A")
+            if FLAGS.show_align and FLAGS.print_align:
+                index = np.size(record.xtemp)
+                rT1, rT2, processingtime, j, dot_plot = agent.play(sess,record)
+                dot_plot[coords1[i][1]+1:coords1[i+1][0],coords2[i][1]+1:coords2[i+1][0]] = dot_plot1
+                record.shift(index,coords1[i][1]+1,coords2[i][1]+1)
+            elif FLAGS.show_align:
+                rT1, rT2, processingtime, j, dot_plot = agent.play(sess)
+                dot_plot[coords1[i][1]+1:coords1[i+1][0],coords2[i][1]+1:coords2[i+1][0]] = dot_plot1
+            elif FLAGS.print_align:
+                index = np.size(record.xtemp)
+                rT1, rT2, processingtime, j = agent.play(sess,record)
+                record.shift(index,coords1[i][1]+1,coords2[i][1]+1)
             else:
-                stemp += 0
-
-    rT2o += stemp
-
-    if (anchore[-1][0] < len(seq1)) and (anchore[-1][1] < len(seq2)):
-        agent.set(seq1[anchore[-1][0]:]+"A",seq2[anchore[-1][1]:]+"A")
-        if FLAGS.show_align and FLAGS.print_align:
-            index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess, record)
-            dot_plot[anchore[-1][0]:,anchore[-1][1]:] = dot_plot1
-            record.shift(index,anchore[-1][0],anchore[-1][1])
-        elif FLAGS.show_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess)
-            dot_plot[anchore[-1][0]:,anchore[-1][1]:] = dot_plot1
-        elif FLAGS.print_align:
-            index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j = agent.play(sess, record)
-            record.shift(index,anchore[-1][0],anchore[-1][1])
+                rT1, rT2, processingtime, j = agent.play(sess)
         else:
-            rT1, rT2, processingtime, j = agent.play(sess)
+            rT2 = 0
+            processingtime = 0
 
+        #print(rT2, coords1[i+1][0]-coords1[i][1])
         rT2o += rT2
         processingtimeo += processingtime
-        jo += j
+                
+        print(i+1, "/", len(coords1), "anchors are finished")
+
+    if FLAGS.show_align:
+        # it is not defined yey
+        print("Will added in later...")
+    if FLAGS.print_align:
+        rT2 = record.record(coords1[-1],coords2[-1],-1,aligns1[-1],aligns2[-1])
+    else:
+        rT2 = np.sum(np.array(list(aligns1[i]))==np.array(list(aligns2[i])))
+
+    rT2o += rT2
 
     now = time.time()
     #NWresult = np.max(NW.match(alignment.HEVseq[_],alignment.HEVseq[__]))
     print("result", rT2o, "time", str(processingtimeo)+"s", str(now-past)+"s", str(now-start)+"s")
     
-    filename = "result/"+FLAGS.model_name+"+Clustal/result%04d%02d%02d%02d%02d%02d_%d_%d_Ecoli.txt" % (
+    filename = "result/"+FLAGS.model_name+"+MUMmer/result%04d%02d%02d%02d%02d%02d_%d_%d_Ecoli.txt" % (
         startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
         startdate.tm_sec, train_env.win_size, train_env.maxI)
 
@@ -215,13 +163,13 @@ with tf.Session() as sess:
     file.close()
 
     if FLAGS.show_align:
-        filename = "img/"+FLAGS.model_name+"+Clustal/result%04d%02d%02d%02d%02d%02d_%d_%d_Ecoli" % (
+        filename = "img/"+FLAGS.model_name+"+MUMmer/result%04d%02d%02d%02d%02d%02d_%d_%d_Ecoli" % (
             startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
             startdate.tm_sec, train_env.win_size, train_env.maxI)
         cv2.imwrite(filename+".jpg",dot_plot)
 
     if FLAGS.print_align:
-        filename = "align/"+FLAGS.model_name+"+Clustal/result%04d%02d%02d%02d%02d%02d_%d_%d_Ecoli.txt" % (
+        filename = "align/"+FLAGS.model_name+"+MUMmer/result%04d%02d%02d%02d%02d%02d_%d_%d_Ecoli.txt" % (
             startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
             startdate.tm_sec, train_env.win_size, train_env.maxI)
         file = open(filename,"w")

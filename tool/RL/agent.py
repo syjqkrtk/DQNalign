@@ -17,7 +17,10 @@ class Agent():
         if self.istrain:
             self.env = Pairwise(game_env,0,Z=self.param.Z)
         else:
-            self.env = Pairwise(game_env,1,seq1,seq2,Z=self.param.Z)
+            if len(seq1)+len(seq2) > 0:
+                self.env = Pairwise(game_env,1,seq1,seq2,Z=self.param.Z)
+            else:
+                self.env = Pairwise(game_env,0,Z=self.param.Z)
 
         if (self.FLAGS.model_name == "DQN") or (self.FLAGS.model_name == "SSD"):
             self.mainQN = model.mainQN

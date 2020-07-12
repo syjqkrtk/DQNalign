@@ -3,11 +3,12 @@ import numpy as np
 import DQNalign.tool.util.ReadSeq as readseq
 import cv2
 import time
+import os
 np.set_printoptions(threshold=sys.maxsize)
 
 class Clustal():
     # WE REFER https://github.com/etetoolkit/ext_apps/blob/master/src/clustal-omega-1.2.1/src/clustal/ktuple_pair.c
-    # We just implemented a preprocessing process in the CLUSTAL Omega
+    # We implemented a pairwise alignment in the CLUSTAL Omega for adjusting the parameters
 
     def __init__(self, env, seq1, seq2, name = ['seq_1','seq_2']):
         # k-tuple based pairwise alignment is used in Clustal
@@ -15,6 +16,16 @@ class Clustal():
         #self.signif = env.signif
         #self.window = env.window
         #self.wind_gap = env.wind_gap
+
+        self.K = 7
+        self.signif = 500
+        self.window = 5
+        self.wind_gap = 5
+
+        #self.K = 10
+        #self.signif = 100
+        #self.window = 5
+        #self.wind_gap = 5
 
         #self.K = 7
         #self.signif = 50
@@ -26,10 +37,10 @@ class Clustal():
         #self.window = 4
         #self.wind_gap = 5
 
-        self.K = 9
-        self.signif = 1
-        self.window = 0
-        self.wind_gap = 100
+        #self.K = 13
+        #self.signif = 50
+        #self.window = 0
+        #self.wind_gap = 100
 
         self.kind = 5
         self.encode(seq1,seq2)
@@ -78,15 +89,45 @@ class Clustal():
         print("The top diagonal components are flagged",time.time()-now,time.time()-start)
         now = time.time()
         self.connect()
-        print("Pairwise alignment was completed",time.time()-now,time.time()-start)
+        print("Pairwise alignment is completed",time.time()-now,time.time()-start)
         return np.max(self.accum[0,:])
 
-    def preprocess(self):
+    def align_process(self):
+        start = time.time()
+        now = time.time()
         self.make_ptrs()
+        print("K-tuple lookup table generation is completed :",time.time()-now,time.time()-start)
+        now = time.time()
         self.diag_score()
+        print("Diagonal score are calculated",time.time()-now,time.time()-start)
+        now = time.time()
         self.des_quick_sort()
+        print("Quick sort for diagonal score is completed",time.time()-now,time.time()-start)
+        now = time.time()
         self.flag_top_diag()
+        print("The top diagonal components are flagged",time.time()-now,time.time()-start)
+        now = time.time()
+        self.connect()
+        print("Pairwise alignment is completed",time.time()-now,time.time()-start)
+        return self.accum
+
+    def preprocess(self):
+        start = time.time()
+        now = time.time()
+        self.make_ptrs()
+        print("K-tuple lookup table generation is completed :",time.time()-now,time.time()-start)
+        now = time.time()
+        self.diag_score()
+        print("Diagonal score are calculated",time.time()-now,time.time()-start)
+        now = time.time()
+        self.des_quick_sort()
+        print("Quick sort for diagonal score is completed",time.time()-now,time.time()-start)
+        now = time.time()
+        self.flag_top_diag()
+        print("The top diagonal components are flagged",time.time()-now,time.time()-start)
+        now = time.time()
         self.record_anchor()
+        print("Preprocessing procedure is completed",time.time()-now,time.time()-start)
         return self.anchors, self.anchore
 
     def make_ptrs(self):
@@ -132,7 +173,7 @@ class Clustal():
                 vn1 = self.tptr1[vn1]
             if i % np.power(self.kind,self.K-2) == np.power(self.kind,self.K-2)-1:
                 i = i
-                #print("Scoring diagonal is completed :",i+1,"/",limit,"with",time.time()-now)
+                print("Scoring diagonal is completed :",i+1,"/",limit,"with",time.time()-now)
 
     def des_quick_sort(self):
         self.index = list(range(self.sizeS1+self.sizeS2))
@@ -384,8 +425,8 @@ class Clustal():
         Qtemp = ""
         Gtemp = ""
         Stemp = ""
-        xtemp = 0
-        ytemp = 0
+        xtemp = []
+        ytemp = []
         gtemp = 0
         ptemp = [0,0]
         ttemp = 0
@@ -408,10 +449,16 @@ class Clustal():
                     Stemp += "-" * ((path[i][0] - ptemp[0]) - (path[i][1] - ptemp[1]))
                     gtemp += (path[i][0] - ptemp[0]) - (path[i][1] - ptemp[1])
                     Gtemp += "+" * longsize
+                    xtemp += list(range(ptemp[0]+1,path[i][0]+1))
+                    ytemp += list(range(ptemp[1]+1,path[i][1]+1))
+                    ytemp += [path[i][1]]*((path[i][0] - ptemp[0]) - (path[i][1] - ptemp[1]))
                 else:
                     Qtemp += "-" * ((path[i][1] - ptemp[1]) - (path[i][0] - ptemp[0]))
                     gtemp += (path[i][1] - ptemp[1]) - (path[i][0] - ptemp[0])
                     Gtemp += "-" * longsize
+                    xtemp += list(range(ptemp[0]+1,path[i][0]+1))
+                    xtemp += [path[i][1]]*((path[i][1] - ptemp[1]) - (path[i][0] - ptemp[0]))
+                    ytemp += list(range(ptemp[1]+1,path[i][1]+1))
             else:
                 Qtemp += Nucleotide[self.seq1[path[i][0]]]
                 Stemp += Nucleotide[self.seq2[path[i][1]]]
@@ -419,25 +466,146 @@ class Clustal():
                     Gtemp += "|"
                 else:
                     Gtemp += " "
+                xtemp.append(path[i][0])
+                ytemp.append(path[i][1])
                 
             ptemp = path[i]
 
         for i in range(int(np.ceil(len(Qtemp)/60))):
-	    temp = '{:<20}'.format("Query "+str(xtemp[60*i]))
-	    str_to_print += temp + Qtemp[60*i:60*i+60] + "\n"
-	    temp = '{:<20}'.format("")
-	    str_to_print += temp + Gtemp[60*i:60*i+60] + "\n"
-	    temp = '{:<20}'.format("Sbjct "+str(ytemp[60*i]))
-	    str_to_print += temp + Stemp[60*i:60*i+60] + "\n"
-	    str_to_print += "\n"
+            temp = '{:<20}'.format("Query "+str(xtemp[60*i]))
+            str_to_print += temp + Qtemp[60*i:60*i+60] + "\n"
+            temp = '{:<20}'.format("")
+            str_to_print += temp + Gtemp[60*i:60*i+60] + "\n"
+            temp = '{:<20}'.format("Sbjct "+str(ytemp[60*i]))
+            str_to_print += temp + Stemp[60*i:60*i+60] + "\n"
+            str_to_print += "\n"
 	    
         file.write("Gaps: "+str(gtemp)+"\n"+"\n")
         file.write(str_to_print)
 
         file.close()
 
+class MUMmer():
+    # The Mummer 3.23 software must be installed with command "sudo apt-get install mummer"
+    # We just used the mummer software with
+
+    def __init__(self, env, seq1file, seq2file, name = ['seq_1','seq_2'], outputname='ref_qry'):
+        #self.max_gap = env.max_gap
+        #self.min_cluster = env.min_cluster
+
+        #self.max_gap = 90
+        #self.min_cluster = 20
+
+        self.max_gap = 100000
+        self.min_cluster = 10000
+
+        self.seq1file = seq1file
+        self.seq2file = seq2file
+        self.outputname = outputname
+        self.name = [name[0],name[1]]
+        self.coords1 = []
+        self.coords2 = []
+        self.aligns1 = []
+        self.aligns2 = []
+        self.score = 0
+
+    def align(self):
+        os.system("nucmer --maxgap=%d --mincluster=%d --prefix=%s %s %s" % (self.max_gap, self.min_cluster, self.outputname, self.seq1file, self.seq2file))
+        os.system("show-coords -r %s.delta > %s.coords" % (self.outputname, self.outputname))
+        os.system("show-aligns %s.delta %s %s > %s.aligns" % (self.outputname, self.name[0], self.name[1], self.outputname))
+
+    def read_aligns(self):
+        self.aligns1 = []
+        self.aligns2 = []
+        self.score = 0
+        state = 0 ## 0 : find BEGIN alignment, 1: after BEGIN alignment (find END alignment)
+        tempalign1 = ""
+        tempalign2 = ""
+        tempscore = 0
+        tempgap = 0
+
+        file = open(self.outputname+".aligns",'r')
+        file.readline()
+        file.readline()
+        file.readline()
+        file.readline()
+        file.readline()
+        temp = file.readline()
+        while temp:
+            if state == 0:
+                aligninfo = temp.split()
+                if np.size(aligninfo)>1:
+                    if aligninfo[1] == "BEGIN":
+                        #print(aligninfo)
+                        state = 1
+                        tempalign1 = ""
+                        tempalign2 = ""
+                        tempscore = 0
+                        tempgap = 0
+                        temp = file.readline()
+            else:
+                aligninfo1 = file.readline().replace("\n","").split()
+                aligninfo2 = file.readline().replace("\n","").split()
+                temp = file.readline()
+                gapinfo = temp.replace("\n","").split()
+                #print(aligninfo1)
+                #print(aligninfo2)
+                #print(gapinfo)
+
+                if aligninfo2[1] == "END":
+                    state = 0
+                    self.aligns1.append(tempalign1)
+                    self.aligns2.append(tempalign2)
+                    self.score += tempscore - tempgap
+                    #print(gapinfo)
+                    continue
+
+                tempalign1 += aligninfo1[1]
+                tempalign2 += aligninfo2[1]
+                tempscore += len(aligninfo1[1])
+                for g in gapinfo:
+                    tempgap += len(g)
+                
+
+            temp = file.readline()
+        
+        
+    def read_coords(self):
+        self.coords1 = []
+        self.coords2 = []
+        estimatedscore = 0
+
+        file = open(self.outputname+".coords",'r')
+        file.readline()
+        file.readline()
+        file.readline()
+        file.readline()
+        file.readline()
+        temp = file.readline().replace("\n","")
+        while temp:
+            coordinfo = temp.split()
+            self.coords1.append([int(coordinfo[0]), int(coordinfo[1])])
+            self.coords2.append([int(coordinfo[3]), int(coordinfo[4])])
+            estimatedscore += max(int(coordinfo[6]),int(coordinfo[7])) * float(coordinfo[9]) / 100
+            temp = file.readline().replace("\n","")
+
+        file.close()
+        print("Estimated exact match score of the mummer result is :",estimatedscore)
+            
+
+    def export_info(self):
+        self.read_coords()
+        self.read_aligns()
+
+        return self.coords1, self.coords2, self.aligns1, self.aligns2, self.score
+
+    def print(self, name):
+        os.system("cp %s.aligns %s.aligns" % (self.outputname, name))
+        os.system("cp %s.coords %s.coords" % (self.outputname, name))
 
 class BLAST():
+    # The BLAST function is not implemented in this version
+
     def __init__(self, env, seq1, seq2):
         # Parameters for BLAST algorithms are written in env
         self.K = env.K

@@ -9,8 +9,8 @@ FLAGS = tf.app.flags.FLAGS
 start = time.time()
 startdate = time.localtime()
 
-seq1 = readseq.readseq('lib/Ecoli_1.txt')
-seq2 = readseq.readseq('lib/Ecoli_2.txt')
+seq1 = readseq.readseq('lib/Prochlorococcus_1.fna')
+seq2 = readseq.readseq('lib/Prochlorococcus_2.fna')
 
 past = time.time()
 c = conventional.Clustal(True,seq1,seq2)

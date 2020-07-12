@@ -17,7 +17,7 @@ param = import_module('DQNalign.param.'+FLAGS.network_set)
 class game_env():
     def __init__(self):
         self.l_seq = [8000, 8000]
-        self.win_size = 500
+        self.win_size = 100
         self.maxI = 10 # maximum indel length
         self.p = [0.1,0.02] # The probability of SNP, indel
         self.reward = [1,-1,-1] # Alignment score of the match, mismatch, indel
@@ -126,7 +126,7 @@ with tf.Session() as sess:
         file = open(filename,"w")
 
         file.write("DQNalign Project v1.0\n")
-        file.write("Pairwise alignment algorithm with deep reinforcement learning based heuristic alignemtn agent\n")
+        file.write("Pairwise alignment algorithm with deep reinforcement learning based heuristic alignment agent\n")
         file.write("Sequence 1 : Ecoli_1, length : "+str(len(seq1))+"\n")
         file.write("Sequence 2 : Ecoli_2, length : "+str(len(seq2))+"\n")
         file.write("\n")

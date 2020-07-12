@@ -17,7 +17,7 @@ param = import_module('DQNalign.param.'+FLAGS.network_set)
 class game_env():
     def __init__(self):
         self.l_seq = [8000, 8000]
-        self.win_size = 100
+        self.win_size = 1000
         self.maxI = 10 # maximum indel length
         self.p = [0.1,0.02] # The probability of SNP, indel
         self.reward = [1,-1,-1] # Alignment score of the match, mismatch, indel
