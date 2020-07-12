@@ -14,6 +14,7 @@ The code was implemented in the python 3.5.5 and TensorFlow 1.12.0.
 - **test** : Experiments are implemented in this folder
 - **train** : Training procedure is implemented in this folder
 - **param** : Parameters are written in this folder
+
 **flags.py** : Selection of parameters
 
 Because of the file sizes, we will replace the networks into the GoogleDrive link. Please download the trained networks in the following link.
