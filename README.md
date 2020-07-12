@@ -5,7 +5,9 @@ We propose a novel pairwise global alignment tool using the deep reinforcement l
 
 The code was implemented in the python 3.5.5 and TensorFlow 1.12.0.
 
-<img height = "300" src = "https://user-images.githubusercontent.com/49563250/87241992-a5c24480-c463-11ea-9876-3b7415e5480e.png"></img>
+<img height = "450" src = "https://user-images.githubusercontent.com/49563250/87241992-a5c24480-c463-11ea-9876-3b7415e5480e.png"></img>
+<img height = "450" src = "https://user-images.githubusercontent.com/49563250/87242005-c12d4f80-c463-11ea-9665-e1fc571ea630.png"></img>
+<img height = "450" src = "https://user-images.githubusercontent.com/49563250/87242006-c25e7c80-c463-11ea-9b0f-e7b7d4ea504a.png"></img>
 
 ## Description of the project structure
 
