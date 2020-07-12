@@ -14,10 +14,10 @@ The code was implemented in the python 3.5.5 and TensorFlow 1.12.0.
 - **test** : Experiments are implemented in this folder
 - **train** : Training procedure is implemented in this folder
 - **param** : Parameters are written in this folder
-- **flags.py** : Selection of parameters
+**flags.py** : Selection of parameters
 
 Because of the file sizes, we will replace the networks into the GoogleDrive link. Please download the trained networks in the following link.
-**network** : https://drive.google.com/file/d/1UDqTMKoADPFCz2hiFXbm_GEZ0aObT-S2/view?usp=sharing
+- **network** : https://drive.google.com/file/d/1UDqTMKoADPFCz2hiFXbm_GEZ0aObT-S2/view?usp=sharing
 
 1. Conceptual diagram of the DQNalign
 <img width = "800" src = "https://user-images.githubusercontent.com/49563250/87241992-a5c24480-c463-11ea-9876-3b7415e5480e.png"></img>
