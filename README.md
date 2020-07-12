@@ -5,16 +5,12 @@ We propose a novel pairwise global alignment tool using the deep reinforcement l
 
 The code was implemented in the python 3.5.5 and TensorFlow 1.12.0.
 
-<img width = "800" src = "https://user-images.githubusercontent.com/49563250/87241992-a5c24480-c463-11ea-9876-3b7415e5480e.png"></img>
-<img width = "800" src = "https://user-images.githubusercontent.com/49563250/87242005-c12d4f80-c463-11ea-9665-e1fc571ea630.png"></img>
-<img width = "800" src = "https://user-images.githubusercontent.com/49563250/87242006-c25e7c80-c463-11ea-9b0f-e7b7d4ea504a.png"></img>
-
 ## Description of the project structure
 
 - **tool** : Base algorithms are implemented in this folder
--- **Bio** : About bioinformatics methods
--- **RL** : About deep reinforcement learning methods
--- **util** : Extra functions
+- ***Bio*** : About bioinformatics methods
+- ***RL*** : About deep reinforcement learning methods
+- ***util*** : Extra functions
 - **test** : Experiments are implemented in this folder
 - **train** : Training procedure is implemented in this folder
 - **param** : Parameters are written in this folder
@@ -22,6 +18,15 @@ The code was implemented in the python 3.5.5 and TensorFlow 1.12.0.
 
 Because of the file sizes, we will replace the networks into the GoogleDrive link. Please download the trained networks in the following link.
 **network** : https://drive.google.com/file/d/1UDqTMKoADPFCz2hiFXbm_GEZ0aObT-S2/view?usp=sharing
+
+1. Conceptual diagram of the DQNalign
+<img width = "800" src = "https://user-images.githubusercontent.com/49563250/87241992-a5c24480-c463-11ea-9876-3b7415e5480e.png"></img>
+
+2.Detailed network architecture of the network named DQN
+<img width = "800" src = "https://user-images.githubusercontent.com/49563250/87242005-c12d4f80-c463-11ea-9665-e1fc571ea630.png"></img>
+
+3.Detailed network architecture of the network named SSD
+<img width = "800" src = "https://user-images.githubusercontent.com/49563250/87242006-c25e7c80-c463-11ea-9b0f-e7b7d4ea504a.png"></img>
 
 
 Our code implementation refers the following links:
