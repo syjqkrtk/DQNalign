@@ -8,9 +8,9 @@ The code was implemented in the python 3.5.5 and TensorFlow 1.12.0.
 ## Description of the project structure
 
 - **tool** : Base algorithms are implemented in this folder
-- ***Bio*** : About bioinformatics methods
-- ***RL*** : About deep reinforcement learning methods
-- ***util*** : Extra functions
+    - **Bio** : About bioinformatics methods
+    - **RL** : About deep reinforcement learning methods
+    - **util** : Extra functions
 - **test** : Experiments are implemented in this folder
 - **train** : Training procedure is implemented in this folder
 - **param** : Parameters are written in this folder
