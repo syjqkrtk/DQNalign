@@ -20,5 +20,9 @@ The code was implemented in the python 3.6 and TensorFlow 1.12.0.
 - **test_HEV** : Test the DQNalign method for 47 HEV sequences  
 - **test_Ecoli** : Test the DQNalign method for 2 E.coli sequences  
 
-We refer the explanation provided by the "https://medium.com/@awjuliani/simple-reinforcement-learning-with-tensorflow-part-4-deep-q-networks-and-beyond-8438a3e2b8df".  
-And the github link of reference code is https://github.com/awjuliani/DeepRL-Agents/blob/master/Double-Dueling-DQN.ipynb
+Our code implementation refers the following links:
+Deep reinforcement learning : "https://medium.com/@awjuliani/simple-reinforcement-learning-with-tensorflow-part-4-deep-q-networks-and-beyond-8438a3e2b8df".  
+And the github link of reference code : https://github.com/awjuliani/DeepRL-Agents/blob/master/Double-Dueling-DQN.ipynb
+Code architecture : https://github.com/veronicachelu/meta-learning
+Clustal : https://github.com/etetoolkit/ext_apps/tree/master/src/clustal-omega-1.2.1
+MUMmer 3.23 : https://sourceforge.net/projects/mummer/
