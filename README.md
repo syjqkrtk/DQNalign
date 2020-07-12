@@ -21,7 +21,7 @@ The code was implemented in the python 3.5.5 and TensorFlow 1.12.0.
 - **flags.py** : Selection of parameters
 
 Because of the file sizes, we will replace the networks into the GoogleDrive link. Please download the trained networks in the following link.
-**network** : Test the DQNalign method for 2 E.coli sequences
+**network** : https://drive.google.com/file/d/1UDqTMKoADPFCz2hiFXbm_GEZ0aObT-S2/view?usp=sharing
 
 
 Our code implementation refers the following links:
