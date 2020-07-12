@@ -11,22 +11,27 @@ The code was implemented in the python 3.6 and TensorFlow 1.12.0.
 
 ## Description of the project structure
 
-- **alignment** : Define the environment, state, reward of the sequence alignment  
-- **Learning** : Define the structure of the dueling double Deep-Q Network  
-- **lcs** : For using the longest common substrings method  
-- **NW** : For using the Needleman-Wunsch algorithm  
-- **train_main** : Training the DQN network  
-- **test_Insilico** : Test the DQNalign method for various in-silico scenarios  
-- **test_HEV** : Test the DQNalign method for 47 HEV sequences  
-- **test_Ecoli** : Test the DQNalign method for 2 E.coli sequences  
+- **tool** : Define the environment, state, reward of the sequence alignment
+- **test** : Define the structure of the dueling double Deep-Q Network
+- **train** : For using the longest common substrings method
+- **param** : For using the Needleman-Wunsch algorithm
+- **flags.py** : Training the DQN network
+
+- **network** : Test the DQNalign method for 2 E.coli sequences
+- **align** : Test the DQNalign method for various in-silico scenarios
+- **img** : Test the DQNalign method for 47 HEV sequences
+- **lib** : Test the DQNalign method for 2 E.coli sequences
+- **result** : Test the DQNalign method for 2 E.coli sequences
+- **tensorboard** : Test the DQNalign method for 2 E.coli sequences
 
 Our code implementation refers the following links:
-Deep reinforcement learning : "https://medium.com/@awjuliani/simple-reinforcement-learning-with-tensorflow-part-4-deep-q-networks-and-beyond-8438a3e2b8df".
 
-And the github link of reference code : https://github.com/awjuliani/DeepRL-Agents/blob/master/Double-Dueling-DQN.ipynb
+Explanation - "https://medium.com/@awjuliani/simple-reinforcement-learning-with-tensorflow-part-4-deep-q-networks-and-beyond-8438a3e2b8df".
 
-Code architecture : https://github.com/veronicachelu/meta-learning
+Deep reinforcement learning - https://github.com/awjuliani/DeepRL-Agents/blob/master/Double-Dueling-DQN.ipynb
 
-Clustal : https://github.com/etetoolkit/ext_apps/tree/master/src/clustal-omega-1.2.1
+Code architecture - https://github.com/veronicachelu/meta-learning
 
-MUMmer 3.23 : https://sourceforge.net/projects/mummer/
+Clustal - https://github.com/etetoolkit/ext_apps/tree/master/src/clustal-omega-1.2.1
+
+MUMmer 3.23 - https://sourceforge.net/projects/mummer/
