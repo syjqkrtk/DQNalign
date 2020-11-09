@@ -186,6 +186,30 @@ def updateTargetGraph(tfVars,tau):
         op_holder.append(tfVars[idx+total_vars//2].assign((var.value()*tau) + ((1-tau)*tfVars[idx+total_vars//2].value())))
     return op_holder
 
+<<<<<<< HEAD
+def copyGraphOp(tfVars):
+    total_vars = len(tfVars)
+    op_holder = []
+    for idx,var in enumerate(tfVars[0:total_vars//2]):
+        op_holder.append(tfVars[idx+total_vars//2].assign(var.value()))
+    return op_holder
+
+def copyGraphOp2(tfVars):
+    total_vars = len(tfVars)
+    op_holder = []
+    for idx,var in enumerate(tfVars[0:total_vars//2]):
+        op_holder.append(tfVars[idx+total_vars//2].assign(var.value()))
+    return op_holder
+
 def updateTarget(op_holder,sess):
     for op in op_holder:
         sess.run(op)
+
+def copyGraph(op_holder,sess):
+    for op in op_holder:
+        sess.run(op)
+=======
+def updateTarget(op_holder,sess):
+    for op in op_holder:
+        sess.run(op)
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2

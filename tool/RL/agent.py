@@ -4,6 +4,28 @@ import os
 from importlib import *
 from DQNalign.tool.RL.alignment import Pairwise
 from DQNalign.tool.RL.Learning import *
+<<<<<<< HEAD
+import DQNalign.tool.util.function as function
+import time
+
+class Agent():
+    def __init__(self, FLAGS, istrain, game_env, model, seq1 = [], seq2 = [], ismeta = False):
+        """ Get parameters from files """
+        self.FLAGS = FLAGS
+        self.istrain = istrain
+
+        if ismeta:
+            self.param = import_module('DQNalign.param.MAML')
+        else:
+            self.param = import_module('DQNalign.param.'+self.FLAGS.network_set)
+
+            """ Exploration strategy """
+            if self.istrain:
+                self.l_seq = game_env.l_seq
+                self.e = self.param.startE
+                self.stepDrop = (self.param.startE - self.param.endE) / self.param.annealing_steps
+
+=======
 import time
 
 class Agent():
@@ -13,6 +35,7 @@ class Agent():
         self.param = import_module('DQNalign.param.'+self.FLAGS.network_set)
         self.istrain = istrain
 
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
         """ Define sequence alignment environment """
         if self.istrain:
             self.env = Pairwise(game_env,0,Z=self.param.Z)
@@ -22,7 +45,16 @@ class Agent():
             else:
                 self.env = Pairwise(game_env,0,Z=self.param.Z)
 
+<<<<<<< HEAD
+        if ismeta:
+            self.mainQN = model.mainQN
+            self.tempQN = model.targetQN
+            self.trainables = model.trainables
+            self.copyOps = model.copyOps
+        elif (self.FLAGS.model_name == "DQN") or (self.FLAGS.model_name == "SSD"):
+=======
         if (self.FLAGS.model_name == "DQN") or (self.FLAGS.model_name == "SSD"):
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
             self.mainQN = model.mainQN
             self.targetQN = model.targetQN
             self.trainables = model.trainables
@@ -33,12 +65,15 @@ class Agent():
         self.start = time.time()
         self.myBuffer = experience_buffer()
 
+<<<<<<< HEAD
+=======
         """ Exploration strategy """
         if self.istrain:
             self.l_seq = game_env.l_seq
             self.e = self.param.startE
             self.stepDrop = (self.param.startE - self.param.endE) / self.param.annealing_steps
 
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
     def reset(self):
         """ Define sequence alignment environment """
         self.istrain = True
@@ -69,14 +104,18 @@ class Agent():
             _, loss = sess.run([self.mainQN.updateModel, self.mainQN.loss], feed_dict={self.mainQN.scalarInput: np.vstack(trainBatch[:, 0]), self.mainQN.targetQ: targetQ, self.mainQN.actions: trainBatch[:, 1]})
             updateTarget(self.targetOps, sess)  # Update target network with 'tau' ratio
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
     def skip(self):
         a = []
 
         seq1end = min(self.env.x+self.env.win_size-1,self.env.sizeS1-1)
         seq2end = min(self.env.y+self.env.win_size-1,self.env.sizeS2-1)
-        minend = min(seq1end-self.env.x,seq2end-self.env.y)+1
-        diff = np.where(self.env.seq1[self.env.x:self.env.x + minend] != self.env.seq2[self.env.y:self.env.y + minend])
+<<<<<<< HEAD
+        minend = min(seq1end-self.env.x,seq2end-self.env.y)
+        diff = np.where(self.env.seq1[self.env.x:self.env.x + minend + 1] != self.env.seq2[self.env.y:self.env.y + minend + 1])
         if np.size(diff) > 0:
             a = [0] * np.min(diff)
         else:
@@ -84,7 +123,162 @@ class Agent():
 
         return a
 
+    def reverseskip(self):
+        a = []
+
+        seq1end = max(self.env.x-self.env.win_size+1,0)
+        seq2end = max(self.env.y-self.env.win_size+1,0)
+        minend = min(self.env.x-seq1end,self.env.y-seq2end)
+        diff = np.where(self.env.seq1[self.env.x-minend:self.env.x + 1][::-1] != self.env.seq2[self.env.y-minend:self.env.y + 1][::-1])
+        if np.size(diff) > 0:
+            a = [0] * np.max(diff)
+        else:
+            a = [0] * minend
+
+        return a
+
+    def skipRC(self):
+        a = []
+
+        seq1end = min(self.env.x+self.env.win_size-1,self.env.sizeS1-1)
+        seq2end = max(self.env.y-self.env.win_size+1,0)
+        minend = min(seq1end-self.env.x,self.env.y-seq2end)
+        diff = np.where(self.env.seq1[self.env.x:self.env.x + minend + 1] != self.env.rev2[self.env.y-minend:self.env.y + 1][::-1])
+=======
+        minend = min(seq1end-self.env.x,seq2end-self.env.y)+1
+        diff = np.where(self.env.seq1[self.env.x:self.env.x + minend] != self.env.seq2[self.env.y:self.env.y + minend])
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
+        if np.size(diff) > 0:
+            a = [0] * np.min(diff)
+        else:
+            a = [0] * minend
+
+        return a
+
+<<<<<<< HEAD
+    def reverseskipRC(self):
+        a = []
+
+        seq1end = max(self.env.x-self.env.win_size+1,0)
+        seq2end = min(self.env.y+self.env.win_size-1,self.env.sizeS2-1)
+        minend = min(self.env.x-seq1end,seq2end-self.env.y)
+        diff = np.where(self.env.seq1[self.env.x-minend:self.env.x + 1][::-1] != self.env.seq2[self.env.y:self.env.y + minend + 1])
+        if np.size(diff) > 0:
+            a = [0] * np.max(diff)
+        else:
+            a = [0] * minend
+
+        return a
+
+    def metatrain(self, sess, mainBuffer=False, X=0):
+        episodeBuffer = experience_buffer()
+        if self.istrain:
+            # Environment reset for each episode
+            s1 = self.env.reset() # Rendered image of the alignment environment
+            s1 = processState(s1)
+        else:
+            s1 = processState(self.env.renderEnv())
+
+        d = False # The state of the game (End or Not)
+        j = 0
+        rT1 = 0 # Total reward
+        rT2 = 0 # Total reward
+        best = 0
+        flag = False
+ 
+        while j < self.env.sizeS1+self.env.sizeS2:  # Training step is proceeded until the maximum episode length
+            if self.env.seq1[self.env.x]==self.env.seq2[self.env.y]:
+                a = self.skip()
+            else:
+                s1 = processState(self.env.renderEnv())
+                a = sess.run(self.tempQN.predict, feed_dict={self.tempQN.scalarInput: [s1]})
+
+            #print(self.env.x,self.env.y,a,self.env.seq1[self.env.x],self.env.seq2[self.env.y],j,rT1)
+            # Update the DQN network
+            # Calculate the change of the state, reward and d(one)
+            for _ in range(np.size(a)):
+                s = s1
+                s1, r, d = self.env.step(a[_])
+                s1 = processState(s1)
+                episodeBuffer.add(np.reshape(np.array([s, a[_], r, s1, d]), [1, 5]))  # Save the result into episode buffer
+                rT1 += r
+                rT2 += (r>0)
+                j += 1
+                if rT1 >= best:
+                    best = rT1
+
+                # if score drops more than X, extension will be ended
+                if (rT1 < best - X) and (X>0):
+                    flag = True
+                    break
+
+                if d == True:
+                    break
+
+            if (j % self.param.update_freq == 0) and (j >= self.param.batch_size) and self.istrain:
+                #print(j, self.env.x, self.env.y)
+                # update the temp network
+                trainBatch = episodeBuffer.sample(self.param.batch_size)  # Select the batch from the experience buffer
+        
+                # The estimated Q value from main network is Q1, from target network is Q2
+                Q1 = sess.run(self.tempQN.predict, feed_dict={self.tempQN.scalarInput: np.vstack(trainBatch[:, 3])})
+                Q2 = sess.run(self.tempQN.Qout, feed_dict={self.tempQN.scalarInput: np.vstack(trainBatch[:, 3])})
+            
+                # trainBatch[:,4] means that the action was the last step of the episode
+                # If the action is the last step, the reward is used for update Q value
+                # IF not, the Q value is updated as follows:
+                # Qmain(s,a) = r(s,a) + yQtarget(s1,argmaxQmain(s1,a))
+                end_multiplier = -(trainBatch[:, 4] - 1)
+                doubleQ = Q2[range(self.param.batch_size), Q1]
+                targetQ = trainBatch[:, 2] + (self.param.y * doubleQ * end_multiplier)
+                _ = sess.run(self.tempQN.updateModel, feed_dict={self.tempQN.scalarInput: np.vstack(trainBatch[:, 0]), self.tempQN.targetQ: targetQ, self.tempQN.actions: trainBatch[:, 1]})
+
+            if d == True:
+                break
+
+            if flag == True:
+                break
+
+        if self.istrain:
+            # Environment reset for each episode
+            s1 = self.env.reset() # Rendered image of the alignment environment
+            s1 = processState(s1)
+
+            d = False # The state of the game (End or Not)
+            j = 0
+            rT1 = 0 # Total reward
+            rT2 = 0 # Total reward
+ 
+            while j < self.env.sizeS1+self.env.sizeS2:  # Training step is proceeded until the maximum episode length
+                if self.env.seq1[self.env.x]==self.env.seq2[self.env.y]:
+                    a = self.skip()
+                else:
+                    s1 = processState(self.env.renderEnv())
+                    a = sess.run(self.tempQN.predict, feed_dict={self.tempQN.scalarInput: [s1]})
+
+                # Update the DQN network
+                # Calculate the change of the state, reward and d(one)
+                for _ in range(np.size(a)):
+                    s = s1
+                    s1, r, d = self.env.step(a[_])
+                    s1 = processState(s1)
+                    mainBuffer.add(np.reshape(np.array([s, a[_], r, s1, d]), [1, 5]))  # Save the result into episode buffer
+                    rT1 += r
+                    rT2 += (r>0)
+                    j += 1
+
+                    if d == True:
+                        break
+
+                if d == True:
+                    break
+
+        return rT1, rT2, j, mainBuffer
+
+    def Global(self, sess, record=0):
+=======
     def play(self, sess, record=0):
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
         # Newly define experience buffer for new episode
         past = time.time()
         if self.FLAGS.show_align:
@@ -179,3 +373,301 @@ class Agent():
         elif self.FLAGS.print_align:
             return rT1, rT2, now - past, j
         return rT1, rT2, now - past, j
+<<<<<<< HEAD
+
+    def Local(self, sess, uX1, uX2, uY1, uY2, X):
+        # Reverse Complement 기능 추가해야함
+        # Newly define experience buffer for new episode
+        if uY1 < uY2:
+            RCmode = 0
+        else:
+            RCmode = 1
+
+        past = time.time()
+
+        rT1o = 0
+        rT2o = 0
+
+        pathx = []
+        pathy = []
+
+        d = False # The state of the game (End or Not)
+        rT1 = 1 # Total reward
+        rT2 = 1 # Total match
+        j = 0
+
+        if RCmode == 0:
+            best = 1
+            best2 = 1
+            flag = 0
+            pathx1 = []
+            pathy1 = []
+
+            #Forward Extension
+            if (uX2+1 <= self.env.sizeS1) and (uY2+1 <= self.env.sizeS2):
+                self.env.x = uX2 + 1
+                self.env.y = uY2 + 1
+                pathx1.append(self.env.x)
+                pathy1.append(self.env.y)
+                bestxy = [self.env.x,self.env.y]
+
+                while j < self.env.sizeS1+self.env.sizeS2-uX2-uY2:
+                    # Skip process
+                    if self.env.seq1[self.env.x]==self.env.seq2[self.env.y]:
+                        a = self.skip()
+                    else:
+                        #test = time.time()
+                        s1 = processState(self.env.renderEnv())
+                        #print("Rendering stage :",time.time()-test)
+                        #test = time.time()
+                        a = sess.run(self.mainQN.predict, feed_dict={self.mainQN.scalarInput: [s1]})
+                        #print("Prediction stage :",time.time()-test)
+                        #test = time.time()
+            
+                    for _ in range(np.size(a)):
+                        r, d = self.env.teststep(a[_])
+                        pathx1.append(self.env.x)
+                        pathy1.append(self.env.y)
+                        j += 1
+                        rT1 += r
+                        rT2 += (r>0)
+                        if rT1 >= best:
+                            best = rT1
+                            best2 = rT2
+                            bestxy = [self.env.x, self.env.y]
+
+                        # if score drops more than X, extension will be ended
+                        if rT1 < best - X:
+                            flag = 1
+                            break
+
+                        if d == True:
+                            flag = 1
+                            break
+                        #print("Do step stage :",time.time()-test)
+
+                    if flag:
+                        break
+
+                bestp = function.check_where(pathx1, pathy1, bestxy)
+                pathx1 = pathx1[:bestp+1]
+                pathy1 = pathy1[:bestp+1]
+
+            rT1o += best
+            rT2o += best2
+
+            d = False # The state of the game (End or Not)
+            rT1 = 1 # Total reward
+            rT2 = 1 # Total match
+            j = 0
+
+            best = 1
+            best2 = 1
+            flag = 0
+            pathx2 = []
+            pathy2 = []
+
+            #Reverse Extension
+            if (uX1-1 >= 0) and (uY1-1 >= 0):
+                self.env.x = uX1 - 1
+                self.env.y = uY1 - 1
+                pathx2.append(self.env.x)
+                pathy2.append(self.env.y)
+                bestxy = [self.env.x,self.env.y]
+
+                while j < uX1+uY1:
+                    # Skip process
+                    if self.env.seq1[self.env.x]==self.env.seq2[self.env.y]:
+                        a = self.reverseskip()
+                    else:
+                        #test = time.time()
+                        s1 = processState(self.env.renderRev())
+                        #print("Rendering stage :",time.time()-test)
+                        #test = time.time()
+                        a = sess.run(self.mainQN.predict, feed_dict={self.mainQN.scalarInput: [s1]})
+                        #print("Prediction stage :",time.time()-test)
+                        #test = time.time()
+            
+                    for _ in range(np.size(a)):
+                        r, d = self.env.teststep(10+a[_])
+                        pathx2.append(self.env.x)
+                        pathy2.append(self.env.y)
+                        j += 1
+                        rT1 += r
+                        rT2 += (r>0)
+                        if rT1 >= best:
+                            best = rT1
+                            best2 = rT2
+                            bestxy = [self.env.x, self.env.y]
+
+                        # if score drops more than X, extension will be ended
+                        if rT1 < best - X:
+                            flag = 1
+                            break
+
+                        if d == True:
+                            flag = 1
+                            break
+                        #print("Do step stage :",time.time()-test)
+
+                    if flag:
+                        break
+
+                bestp = function.check_where(pathx2, pathy2, bestxy)
+                pathx2 = pathx2[:bestp+1]
+                pathy2 = pathy2[:bestp+1]
+
+            pathx = pathx2[::-1]+list(range(uX1,uX2+1))+pathx1
+            pathy = pathy2[::-1]+list(range(uY1,uY2+1))+pathy1
+
+            rT1o += best
+            rT2o += best2
+
+            same = np.sum(np.array(self.env.seq1[list(range(uX1,uX2+1))]) == np.array(self.env.seq2[list(range(uY1,uY2+1))]))
+            length = uX2-uX1+1
+
+            rT1o += self.env.reward[0]*same+self.env.reward[1]*(length-same)
+            rT2o += same
+
+            path = [pathx, pathy]
+
+        else:
+            best = 1
+            best2 = 1
+            flag = 0
+            pathx1 = []
+            pathy1 = []
+
+            #Forward Extension
+            if (uX2+1 <= self.env.sizeS1) and (uY2-1 >= 0):
+                self.env.x = uX2 + 1
+                self.env.y = uY1 - 1
+                pathx1.append(self.env.x)
+                pathy1.append(self.env.y)
+                bestxy = [self.env.x,self.env.y]
+
+                while j < self.env.sizeS1-uX2+uY2:
+                    # Skip process
+                    if self.env.seq1[self.env.x]==self.env.rev2[self.env.y]:
+                        a = self.skipRC()
+                    else:
+                        #test = time.time()
+                        s1 = processState(self.env.renderRC())
+                        #print("Rendering stage :",time.time()-test)
+                        #test = time.time()
+                        a = sess.run(self.mainQN.predict, feed_dict={self.mainQN.scalarInput: [s1]})
+                        #print("Prediction stage :",time.time()-test)
+                        #test = time.time()
+            
+                    for _ in range(np.size(a)):
+                        r, d = self.env.stepRC(a[_])
+                        pathx1.append(self.env.x)
+                        pathy1.append(self.env.y)
+                        j += 1
+                        rT1 += r
+                        rT2 += (r>0)
+                        if rT1 >= best:
+                            best = rT1
+                            best2 = rT2
+                            bestxy = [self.env.x, self.env.y]
+
+                        # if score drops more than X, extension will be ended
+                        if rT1 < best - X:
+                            flag = 1
+                            break
+
+                        if d == True:
+                            flag = 1
+                            break
+                        #print("Do step stage :",time.time()-test)
+
+                    if flag:
+                        break
+
+                bestp = function.check_where(pathx1, pathy1, bestxy)
+                pathx1 = pathx1[:bestp+1]
+                pathy1 = pathy1[:bestp+1]
+
+            rT1o += best
+            rT2o += best2
+
+            d = False # The state of the game (End or Not)
+            rT1 = 1 # Total reward
+            rT2 = 1 # Total match
+            j = 0
+
+            best = 1
+            best2 = 1
+            flag = 0
+            pathx2 = []
+            pathy2 = []
+
+            #Reverse Extension
+            if (uX1-1 >= 0) and (uY1+1 <= self.env.sizeS2):
+                self.env.x = uX1 - 1
+                self.env.y = uY1 + 1
+                pathx2.append(self.env.x)
+                pathy2.append(self.env.y)
+                bestxy = [self.env.x,self.env.y]
+
+                while j < uX1+self.env.sizeS2-uY1:
+                    # Skip process
+                    if self.env.seq1[self.env.x]==self.env.rev2[self.env.y]:
+                        a = self.reverseskipRC()
+                    else:
+                        #test = time.time()
+                        s1 = processState(self.env.renderRCRev())
+                        #print("Rendering stage :",time.time()-test)
+                        #test = time.time()
+                        a = sess.run(self.mainQN.predict, feed_dict={self.mainQN.scalarInput: [s1]})
+                        #print("Prediction stage :",time.time()-test)
+                        #test = time.time()
+            
+                    for _ in range(np.size(a)):
+                        r, d = self.env.stepRC(10+a[_])
+                        pathx2.append(self.env.x)
+                        pathy2.append(self.env.y)
+                        j += 1
+                        rT1 += r
+                        rT2 += (r>0)
+                        if rT1 >= best:
+                            best = rT1
+                            best2 = rT2
+                            bestxy = [self.env.x, self.env.y]
+
+                        # if score drops more than X, extension will be ended
+                        if rT1 < best - X:
+                            flag = 1
+                            break
+
+                        if d == True:
+                            flag = 1
+                            break
+                        #print("Do step stage :",time.time()-test)
+
+                    if flag:
+                        break
+
+                bestp = function.check_where(pathx2, pathy2, bestxy)
+                pathx2 = pathx2[:bestp+1]
+                pathy2 = pathy2[:bestp+1]
+
+            pathx = pathx2[::-1]+list(range(uX1,uX2+1))+pathx1
+            pathy = pathy2[::-1]+list(range(uY1,uY2-1,-1))+pathy1
+
+            rT1o += best
+            rT2o += best2
+
+            same = np.sum(np.array(self.env.seq1[list(range(uX1,uX2+1))]) == np.array(self.env.rev2[list(range(uY1,uY2-1,-1))]))
+            length = uX2-uX1+1
+
+            rT1o += self.env.reward[0]*same+self.env.reward[1]*(length-same)
+            rT2o += same
+
+            path = [pathx, pathy]
+
+        now = time.time()
+
+        return rT1o, rT2o, now - past, j, path
+=======
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2

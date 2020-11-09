@@ -64,11 +64,19 @@ class Pairwise():
 
     def test(self, seq1, seq2):
         if np.size(seq1)>0 and np.size(seq2)>0:
+<<<<<<< HEAD
+            if (seq1[0] == 0) or (seq1[0] == 1) or (seq1[0] == 2) or (seq1[0] == 3) or (seq1[0] == -1) :
+=======
             if (seq1[0] == 0) or (seq1[0] == 1) or (seq1[0] == 2) or (seq1[0] == 3) :
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
                 seqTemp1 = seq1
                 seqTemp2 = seq2
                 self.seq1 = seqTemp1.astype(int)
                 self.seq2 = seqTemp2.astype(int)
+<<<<<<< HEAD
+                self.rev2 = (3-self.seq2) - 5 * (self.seq2==-1)
+=======
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
             else:
                 seqTemp1 = np.zeros(len(seq1), dtype=int)
                 for _ in range(len(seqTemp1)):
@@ -80,9 +88,17 @@ class Pairwise():
                             seq2[_] == 'T') - 1
                 self.seq1 = seqTemp1.astype(int)
                 self.seq2 = seqTemp2.astype(int)
+<<<<<<< HEAD
+                self.rev2 = (3-self.seq2) - 5 * (self.seq2==-1)
         else:
             self.seq1 = seq1
             self.seq2 = seq2
+            self.rev2 = (3-self.seq2) - 5 * (self.seq2==-1)
+=======
+        else:
+            self.seq1 = seq1
+            self.seq2 = seq2
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
         self.x = 0
         self.y = 0
         self.sizeS1 = np.size(self.seq1)
@@ -94,7 +110,11 @@ class Pairwise():
         return self.state
 
     def moveChar(self, action):
+<<<<<<< HEAD
+        # 0 - Match, 1 - Seq1 Insertion, 2 - Seq2 Insertion, 10 - Reverse Match, 11 - Seq1 Reverse Insertion, 12 - Seq2 Reverse Insertion
+=======
         # 0 - Match, 1 - Seq1 Insertion, 2 - Seq2 Insertion
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
         if action == 0:
             if self.seq1[self.x] == self.seq2[self.y]:
                 reward = self.reward[0]
@@ -111,9 +131,77 @@ class Pairwise():
             reward = self.reward[2]
             self.y += 1
 
+<<<<<<< HEAD
+        if action == 10:
+            if self.seq1[self.x] == self.seq2[self.y]:
+                reward = self.reward[0]
+            else:
+                reward = self.reward[1]
+            self.x -= 1
+            self.y -= 1
+
+        if action == 11:
+            reward = self.reward[2]
+            self.x -= 1
+
+        if action == 12:
+            reward = self.reward[2]
+            self.y -= 1
+
+        if ((self.x >= self.sizeS1-1) and (action < 10)) or ((self.x <= 0) and (action >=10)):
+            done = True
+        elif ((self.y >= self.sizeS2-1) and (action < 10)) or ((self.y <= 0) and (action >=10)):
+            done = True
+        else:
+            done = False
+
+        #print(self.x)
+        #print(self.y)
+        #print(done)
+        return reward, done
+
+    def moveCharRC(self, action):
+        # 0 - Match, 1 - Seq1 Insertion, 2 - Seq2 Insertion, 10 - Reverse Match, 11 - Seq1 Reverse Insertion, 12 - Seq2 Reverse Insertion
+        if action == 0:
+            if self.seq1[self.x] == self.rev2[self.y]:
+                reward = self.reward[0]
+            else:
+                reward = self.reward[1]
+            self.x += 1
+            self.y -= 1
+
+        if action == 1:
+            reward = self.reward[2]
+            self.x += 1
+
+        if action == 2:
+            reward = self.reward[2]
+            self.y -= 1
+
+        if action == 10:
+            if self.seq1[self.x] == self.rev2[self.y]:
+                reward = self.reward[0]
+            else:
+                reward = self.reward[1]
+            self.x -= 1
+            self.y += 1
+
+        if action == 11:
+            reward = self.reward[2]
+            self.x -= 1
+
+        if action == 12:
+            reward = self.reward[2]
+            self.y += 1
+
+        if ((self.x >= self.sizeS1-1) and (action < 10)) or ((self.x <= 0) and (action >=10)):
+            done = True
+        elif ((self.y >= self.sizeS2-1) and (action < 10)) or ((self.y <= 0) and (action >=10)):
+=======
         if self.x >= self.sizeS1-1:
             done = True
         elif self.y >= self.sizeS2-1:
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
             done = True
         else:
             done = False
@@ -181,6 +269,184 @@ class Pairwise():
 
         return a
 
+<<<<<<< HEAD
+    def renderRev(self,xx=0,yy=0):
+        #print(self.x,xx,self.x+xx,self.sizeS1)
+        #print(self.y,yy,self.y+yy,self.sizeS2)
+        #test = time.time()
+        x = self.x + xx
+        y = self.y + yy
+
+        #a = np.zeros([self.win_size + 2, 4, 4]).astype(int)
+        a = np.zeros([self.Z*(self.win_size+2),self.Z*4,4]).astype(int)
+
+        if x-self.win_size < 0:
+            #print(self.win_size)
+            #print(self.seq1[self.x:self.sizeS1])
+            i = np.zeros([self.Z*(x+1),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(x+1)+__,_,np.array(self.seq1[0:x+1][::-1],dtype=int)]=1
+            a[self.Z:self.Z+self.Z*(x+1),self.Z:2*self.Z,:]=i
+            #a[self.Z*(self.sizeS1-x):,self.Z:2*self.Z,:]=1
+        else:
+            #print(self.win_size)
+            #print(self.seq1[self.x:self.x+self.win_size])
+            i = np.zeros([self.Z*(self.win_size),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(self.win_size)+__,_,np.array(self.seq1[x-self.win_size+1:x+1][::-1],dtype=int)]=1
+            a[self.Z:-self.Z,self.Z:2*self.Z,:] = i
+
+        if y-self.win_size < 0:
+            #print(self.win_size)
+            #print(self.seq1[self.y:self.sizeS2])
+            i = np.zeros([self.Z*(y+1),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(y+1)+__,_,np.array(self.seq2[0:y+1][::-1],dtype=int)]=1
+            a[self.Z:self.Z+self.Z*(y+1),2*self.Z:3*self.Z,:]=i
+            #a[self.Z*(self.sizeS2-y):,2*self.Z:3*self.Z,:]=1
+        else:
+            #print(self.win_size)
+            #print(self.seq1[self.y:self.y+self.win_size])
+            i = np.zeros([self.Z*(self.win_size),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(self.win_size)+__,_,np.array(self.seq2[y-self.win_size+1:y+1][::-1],dtype=int)]=1
+            a[self.Z:-self.Z,2*self.Z:3*self.Z,:] = i
+
+        #print("setup time :",time.time()-test)
+        #test = time.time()
+
+        r = (1-a[:,:,0])*(1-a[:,:,3])
+        g = (1-a[:,:,1])*(1-a[:,:,3])
+        b = (1-a[:,:,2])*(1-a[:,:,3])
+        #print("RGB matching time :",time.time()-test)
+
+        a = np.stack([r,g,b], axis=2)
+
+        return a
+
+    def renderRC(self,xx=0,yy=0):
+        #print(self.x,xx,self.x+xx,self.sizeS1)
+        #print(self.y,yy,self.y+yy,self.sizeS2)
+        #test = time.time()
+        x = self.x + xx
+        y = self.y + yy
+
+        #a = np.zeros([self.win_size + 2, 4, 4]).astype(int)
+        a = np.zeros([self.Z*(self.win_size+2),self.Z*4,4]).astype(int)
+
+        if x+self.win_size > self.sizeS1:
+            #print(self.win_size)
+            #print(self.seq1[self.x:self.sizeS1])
+            i = np.zeros([self.Z*(self.sizeS1-x),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(self.sizeS1-x)+__,_,np.array(self.seq1[x:self.sizeS1],dtype=int)]=1
+            a[self.Z:self.Z+self.Z*(self.sizeS1-x),self.Z:2*self.Z,:]=i
+            #a[self.Z*(self.sizeS1-x):,self.Z:2*self.Z,:]=1
+        else:
+            #print(self.win_size)
+            #print(self.seq1[self.x:self.x+self.win_size])
+            i = np.zeros([self.Z*(self.win_size),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+
+                    i[self.Z*np.arange(self.win_size)+__,_,np.array(self.seq1[x:x+self.win_size],dtype=int)]=1
+            a[self.Z:-self.Z,self.Z:2*self.Z,:] = i
+
+        if y-self.win_size < 0:
+            #print(self.win_size)
+            #print(self.seq1[self.y:self.sizeS2])
+            i = np.zeros([self.Z*(y+1),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(y+1)+__,_,np.array(self.rev2[0:y+1][::-1],dtype=int)]=1
+            a[self.Z:self.Z+self.Z*(y+1),2*self.Z:3*self.Z,:]=i
+            #a[self.Z*(self.sizeS2-y):,2*self.Z:3*self.Z,:]=1
+        else:
+            #print(self.win_size)
+            #print(self.seq1[self.y:self.y+self.win_size])
+            i = np.zeros([self.Z*(self.win_size),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(self.win_size)+__,_,np.array(self.rev2[y-self.win_size+1:y+1][::-1],dtype=int)]=1
+            a[self.Z:-self.Z,2*self.Z:3*self.Z,:] = i
+
+        #print("setup time :",time.time()-test)
+        #test = time.time()
+
+        r = (1-a[:,:,0])*(1-a[:,:,3])
+        g = (1-a[:,:,1])*(1-a[:,:,3])
+        b = (1-a[:,:,2])*(1-a[:,:,3])
+        #print("RGB matching time :",time.time()-test)
+
+        a = np.stack([r,g,b], axis=2)
+
+        return a
+
+    def renderRCRev(self,xx=0,yy=0):
+        #print(self.x,xx,self.x+xx,self.sizeS1)
+        #print(self.y,yy,self.y+yy,self.sizeS2)
+        #test = time.time()
+        x = self.x + xx
+        y = self.y + yy
+
+        #a = np.zeros([self.win_size + 2, 4, 4]).astype(int)
+        a = np.zeros([self.Z*(self.win_size+2),self.Z*4,4]).astype(int)
+
+        if x-self.win_size < 0:
+            #print(self.win_size)
+            #print(self.seq1[self.x:self.sizeS1])
+            i = np.zeros([self.Z*(x+1),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(x+1)+__,_,np.array(self.seq1[0:x+1][::-1],dtype=int)]=1
+            a[self.Z:self.Z+self.Z*(x+1),self.Z:2*self.Z,:]=i
+            #a[self.Z*(self.sizeS1-x):,self.Z:2*self.Z,:]=1
+        else:
+            #print(self.win_size)
+            #print(self.seq1[self.x:self.x+self.win_size])
+            i = np.zeros([self.Z*(self.win_size),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(self.win_size)+__,_,np.array(self.seq1[x-self.win_size+1:x+1][::-1],dtype=int)]=1
+            a[self.Z:-self.Z,self.Z:2*self.Z,:] = i
+
+        if y+self.win_size > self.sizeS2:
+            #print(self.win_size)
+            #print(self.seq1[self.y:self.sizeS2])
+            i = np.zeros([self.Z*(self.sizeS2-y),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(self.sizeS2-y)+__,_,np.array(self.rev2[y:self.sizeS2],dtype=int)]=1
+            a[self.Z:self.Z+self.Z*(self.sizeS2-y),2*self.Z:3*self.Z,:]=i
+            #a[self.Z*(self.sizeS2-y):,2*self.Z:3*self.Z,:]=1
+        else:
+            #print(self.win_size)
+            #print(self.seq1[self.y:self.y+self.win_size])
+            i = np.zeros([self.Z*(self.win_size),self.Z,4])
+            for _ in range(self.Z):
+                for __ in range(self.Z):
+                    i[self.Z*np.arange(self.win_size)+__,_,np.array(self.rev2[y:y+self.win_size],dtype=int)]=1
+            a[self.Z:-self.Z,2*self.Z:3*self.Z,:] = i
+
+        #print("setup time :",time.time()-test)
+        #test = time.time()
+
+        r = (1-a[:,:,0])*(1-a[:,:,3])
+        g = (1-a[:,:,1])*(1-a[:,:,3])
+        b = (1-a[:,:,2])*(1-a[:,:,3])
+        #print("RGB matching time :",time.time()-test)
+
+        a = np.stack([r,g,b], axis=2)
+
+        return a
+
+=======
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
     def step(self, action):
         reward, done = self.moveChar(action)
         state = self.renderEnv()
@@ -188,5 +454,12 @@ class Pairwise():
 
     def teststep(self, action):
         reward, done = self.moveChar(action)
+<<<<<<< HEAD
+        return reward, done
 
+    def stepRC(self, action):
+        reward, done = self.moveCharRC(action)
+=======
+
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
         return reward, done
