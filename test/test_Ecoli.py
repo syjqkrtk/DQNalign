@@ -93,13 +93,13 @@ with tf.Session() as sess:
 
     agent.set(seq1, seq2)
     if FLAGS.show_align and FLAGS.print_align:
-        rT1, rT2, processingtime, j, dot_plot = agent.play(sess,record)
+        rT1, rT2, processingtime, j, dot_plot = agent.Global(sess,record)
     elif FLAGS.show_align:
-        rT1, rT2, processingtime, j, dot_plot = agent.play(sess)
+        rT1, rT2, processingtime, j, dot_plot = agent.Global(sess)
     elif FLAGS.print_align:
-        rT1, rT2, processingtime, j = agent.play(sess,record)
+        rT1, rT2, processingtime, j = agent.Global(sess,record)
     else:
-        rT1, rT2, processingtime, j = agent.play(sess)
+        rT1, rT2, processingtime, j = agent.Global(sess)
 
     now = time.time()
     #NWresult = np.max(NW.match(alignment.HEVseq[_],alignment.HEVseq[__]))

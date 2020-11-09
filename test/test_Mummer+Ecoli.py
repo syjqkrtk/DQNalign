@@ -118,18 +118,18 @@ with tf.Session() as sess:
             agent.set(seq1[coords1[i][1]+1:coords1[i+1][0]]+"A", seq2[coords2[i][1]+1:coords2[i+1][0]]+"A")
             if FLAGS.show_align and FLAGS.print_align:
                 index = np.size(record.xtemp)
-                rT1, rT2, processingtime, j, dot_plot = agent.play(sess,record)
+                rT1, rT2, processingtime, j, dot_plot = agent.Global(sess,record)
                 dot_plot[coords1[i][1]+1:coords1[i+1][0],coords2[i][1]+1:coords2[i+1][0]] = dot_plot1
                 record.shift(index,coords1[i][1]+1,coords2[i][1]+1)
             elif FLAGS.show_align:
-                rT1, rT2, processingtime, j, dot_plot = agent.play(sess)
+                rT1, rT2, processingtime, j, dot_plot = agent.Global(sess)
                 dot_plot[coords1[i][1]+1:coords1[i+1][0],coords2[i][1]+1:coords2[i+1][0]] = dot_plot1
             elif FLAGS.print_align:
                 index = np.size(record.xtemp)
-                rT1, rT2, processingtime, j = agent.play(sess,record)
+                rT1, rT2, processingtime, j = agent.Global(sess,record)
                 record.shift(index,coords1[i][1]+1,coords2[i][1]+1)
             else:
-                rT1, rT2, processingtime, j = agent.play(sess)
+                rT1, rT2, processingtime, j = agent.Global(sess)
         else:
             rT2 = 0
             processingtime = 0

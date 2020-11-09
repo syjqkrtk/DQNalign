@@ -103,17 +103,17 @@ with tf.Session() as sess:
     if (anchors[0][0] > 0) and (anchors[0][1] > 0):
         agent.set(seq1[anchors[0][0]-1::-1]+"A",seq2[anchors[0][1]-1::-1]+"A")
         if FLAGS.show_align and FLAGS.print_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess,record)
+            rT1, rT2, processingtime, j, dot_plot1 = agent.Global(sess,record)
             dot_plot[:anchors[0][0],:anchors[0][1]] = dot_plot1[::-1,::-1]
             record.reverse(anchors[0][0]-1,anchors[0][1]-1)
         elif FLAGS.show_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess)
+            rT1, rT2, processingtime, j, dot_plot1 = agent.Global(sess)
             dot_plot[:anchors[0][0],:anchors[0][1]] = dot_plot1[::-1,::-1]
         elif FLAGS.print_align:
-            rT1, rT2, processingtime, j = agent.play(sess, record)
+            rT1, rT2, processingtime, j = agent.Global(sess, record)
             record.reverse(anchors[0][0]-1,anchors[0][1]-1)
         else:
-            rT1, rT2, processingtime, j = agent.play(sess)
+            rT1, rT2, processingtime, j = agent.Global(sess)
 
         rT2o += rT2
         processingtimeo += processingtime
@@ -149,18 +149,18 @@ with tf.Session() as sess:
         agent.set(seq1[anchore[i][0]:anchors[i+1][0]+1],seq2[anchore[i][1]:anchors[i+1][1]+1])
         if FLAGS.show_align and FLAGS.print_align:
             index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess, record)
+            rT1, rT2, processingtime, j, dot_plot1 = agent.Global(sess, record)
             dot_plot[anchors[i][0]:anchore[i][0],anchors[i][1]:anchore[i][1]] = dot_plot1
             record.shift(index,anchore[i][0],anchore[i][1])
         elif FLAGS.show_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess)
+            rT1, rT2, processingtime, j, dot_plot1 = agent.Global(sess)
             dot_plot[anchors[i][0]:anchore[i][0],anchors[i][1]:anchore[i][1]] = dot_plot1
         elif FLAGS.print_align:
             index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j = agent.play(sess, record)
+            rT1, rT2, processingtime, j = agent.Global(sess, record)
             record.shift(index,anchore[i][0],anchore[i][1])
         else:
-            rT1, rT2, processingtime, j = agent.play(sess)
+            rT1, rT2, processingtime, j = agent.Global(sess)
 
         rT2o += rT2
         processingtimeo += processingtime
@@ -185,18 +185,18 @@ with tf.Session() as sess:
         agent.set(seq1[anchore[-1][0]:]+"A",seq2[anchore[-1][1]:]+"A")
         if FLAGS.show_align and FLAGS.print_align:
             index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess, record)
+            rT1, rT2, processingtime, j, dot_plot1 = agent.Global(sess, record)
             dot_plot[anchore[-1][0]:,anchore[-1][1]:] = dot_plot1
             record.shift(index,anchore[-1][0],anchore[-1][1])
         elif FLAGS.show_align:
-            rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess)
+            rT1, rT2, processingtime, j, dot_plot1 = agent.Global(sess)
             dot_plot[anchore[-1][0]:,anchore[-1][1]:] = dot_plot1
         elif FLAGS.print_align:
             index = np.size(record.xtemp)
-            rT1, rT2, processingtime, j = agent.play(sess, record)
+            rT1, rT2, processingtime, j = agent.Global(sess, record)
             record.shift(index,anchore[-1][0],anchore[-1][1])
         else:
-            rT1, rT2, processingtime, j = agent.play(sess)
+            rT1, rT2, processingtime, j = agent.Global(sess)
 
         rT2o += rT2
         processingtimeo += processingtime

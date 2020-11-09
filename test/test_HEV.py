@@ -17,7 +17,7 @@ param = import_module('DQNalign.param.'+FLAGS.network_set)
 class game_env():
     def __init__(self):
         self.l_seq = [8000, 8000]
-        self.win_size = 1000
+        self.win_size = 100
         self.maxI = 10 # maximum indel length
         self.p = [0.1,0.02] # The probability of SNP, indel
         self.reward = [1,-1,-1] # Alignment score of the match, mismatch, indel
@@ -103,17 +103,17 @@ with tf.Session() as sess:
             if (start1 > 0) and (start2 > 0):
                 agent.set(seq1[start1 - 1::-1]+"A", seq2[start2 - 1::-1]+"A")
                 if FLAGS.show_align and FLAGS.print_align:
-                    rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess, record)
+                    rT1, rT2, processingtime, j, dot_plot1 = agent.Global(sess, record)
                     dot_plot[:start1,:start2] = dot_plot1[::-1,::-1]
                     record.reverse(start1-1,start2-1)
                 elif FLAGS.show_align:
-                    rT1, rT2, processingtime, j, dot_plot1 = agent.play(sess)
+                    rT1, rT2, processingtime, j, dot_plot1 = agent.Global(sess)
                     dot_plot[:start1,:start2] = dot_plot1[::-1,::-1]
                 elif FLAGS.print_align:
-                    rT1, rT2, processingtime, j = agent.play(sess, record)
+                    rT1, rT2, processingtime, j = agent.Global(sess, record)
                     record.reverse(start1-1,start2-1)
                 else:
-                    rT1, rT2, processingtime, j = agent.play(sess)
+                    rT1, rT2, processingtime, j = agent.Global(sess)
             else:
                 rT1 = 0
                 rT2 = 0
@@ -128,18 +128,18 @@ with tf.Session() as sess:
                 agent.set(seq1[start1+lcslen:]+"A",seq2[start2+lcslen:]+"A")
                 if FLAGS.show_align and FLAGS.print_align:
                     index = np.size(record.xtemp)
-                    rT1, rT2, processingtime, j, dot_plot2 = agent.play(sess,record)
+                    rT1, rT2, processingtime, j, dot_plot2 = agent.Global(sess,record)
                     record.shift(index,start1+lcslen,start2+lcslen)
                     dot_plot[start1+lcslen:,start2+lcslen:] = dot_plot2
                 elif FLAGS.show_align:
-                    rT1, rT2, processingtime, j, dot_plot2 = agent.play(sess)
+                    rT1, rT2, processingtime, j, dot_plot2 = agent.Global(sess)
                     dot_plot[start1+lcslen:,start2+lcslen:] = dot_plot2
                 elif FLAGS.print_align:
                     index = np.size(record.xtemp)
-                    rT1, rT2, processingtime, j = agent.play(sess, record)
+                    rT1, rT2, processingtime, j = agent.Global(sess, record)
                     record.shift(index,start1+lcslen,start2+lcslen)
                 else:
-                    rT1, rT2, processingtime, j = agent.play(sess)
+                    rT1, rT2, processingtime, j = agent.Global(sess)
             else:
                 rT1 = 0
                 rT2 = 0
@@ -179,5 +179,3 @@ with tf.Session() as sess:
                 record.print(file)
 
                 file.close()
-
-            past = now

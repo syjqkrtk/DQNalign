@@ -18,7 +18,11 @@ class game_env():
         self.win_size = 100
         self.maxI = 10 # maximum indel length
         self.p = [0.1,0.02] # The probability of SNP, indel
+<<<<<<< HEAD
+        self.reward = [0.5,-0.5,-1] # Alignment score of the match, mismatch, indel
+=======
         self.reward = [1,-1,-2] # Alignment score of the match, mismatch, indel
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
 
         self.path = "./network/"+FLAGS.model_name+"/"+str(self.win_size)+'_'+str(param.n_step)
 
@@ -78,7 +82,11 @@ with tf.Session() as sess:
         
     startdate = time.localtime()
     for i in range(train_model.param.num_episodes):
+<<<<<<< HEAD
+        rT1, rT2, processingtime, j = agent.Global(sess)
+=======
         rT1, rT2, processingtime, j = agent.play(sess)
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
         print("Train scenario  :",i, agent.total_steps, rT1, rT2, str(float("{0:.2f}".format(processingtime)))+"s")
 
         # Periodically test the model.
@@ -93,7 +101,11 @@ with tf.Session() as sess:
             start1,start2,lcslen = lcs.longestSubstring(seq1,seq2)
             if (start1 > 0) and (start2 > 0):
                 agent.set(seq1[start1 - 1::-1]+"A", seq2[start2 - 1::-1]+"A")
+<<<<<<< HEAD
+                rT1, rT2, processingtime1, j = agent.Global(sess)
+=======
                 rT1, rT2, processingtime1, j = agent.play(sess)
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
             else:
                 rT1 = 0
                 rT2 = 0
@@ -105,7 +117,11 @@ with tf.Session() as sess:
             
             if (start1+lcslen < len(seq1)) and (start2+lcslen < len(seq2)):
                 agent.set(seq1[start1+lcslen:]+"A",seq2[start2+lcslen:]+"A")
+<<<<<<< HEAD
+                rT1, rT2, processingtime2, j = agent.Global(sess)
+=======
                 rT1, rT2, processingtime2, j = agent.play(sess)
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
             else:
                 rT1 = 0
                 rT2 = 0
@@ -120,7 +136,11 @@ with tf.Session() as sess:
             start1,start2,lcslen = lcs.longestSubstring(seq1,seq2)
             if (start1 > 0) and (start2 > 0):
                 agent.set(seq1[start1 - 1::-1]+"A", seq2[start2 - 1::-1]+"A")
+<<<<<<< HEAD
+                rT1, rT2, processingtime1, j = agent.Global(sess)
+=======
                 rT1, rT2, processingtime1, j = agent.play(sess)
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
             else:
                 rT1 = 0
                 rT2 = 0
@@ -132,7 +152,11 @@ with tf.Session() as sess:
             
             if (start1+lcslen < len(seq1)) and (start2+lcslen < len(seq2)):
                 agent.set(seq1[start1+lcslen:]+"A",seq2[start2+lcslen:]+"A")
+<<<<<<< HEAD
+                rT1, rT2, processingtime2, j = agent.Global(sess)
+=======
                 rT1, rT2, processingtime2, j = agent.play(sess)
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
             else:
                 rT1 = 0
                 rT2 = 0
