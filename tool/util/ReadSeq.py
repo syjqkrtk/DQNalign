@@ -39,6 +39,23 @@ def splitseqs(filename):
 
     return HEVname
 
+<<<<<<< HEAD
+def inttoseq(data):
+    seq = []
+    for i in range(len(data)):
+        if data[i] == 0:
+            seq.append('A')
+        if data[i] == 1:
+            seq.append('C')
+        if data[i] == 2:
+            seq.append('G')
+        if data[i] == 3:
+            seq.append('T')
+
+    return data
+
+=======
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
 def seqtoint(seq):
     data = []
     for i in range(len(seq)):

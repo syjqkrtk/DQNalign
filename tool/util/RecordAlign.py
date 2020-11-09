@@ -1,4 +1,8 @@
 import numpy as np
+<<<<<<< HEAD
+import DQNalign.tool.util.function as function
+=======
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
 
 class record_align():
     def __init__(self):
@@ -126,7 +130,11 @@ class record_align():
         self.Stemp = ""
         self.xtemp = []
         self.ytemp = []
+<<<<<<< HEAD
+        state = 0		# state - 0: go ahead, 1: insertion, 2: deletion, 3: insertion to deletion, 4: deletion to insertion
+=======
         state = 0
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
         plus = 0
         minus = 0
 
@@ -303,3 +311,272 @@ class record_align():
             file.write('{:<20}'.format("Sbjct "+str(self.ytemp[60*i])))
             file.write(self.Stemp[60*i:60*i+60]+"\n")
             file.write("\n")
+<<<<<<< HEAD
+
+class record_path():
+    def __init__(self):
+        self.path = []
+        self.seq1 = []
+        self.seq2 = []
+        self.rev2 = []
+        self.align1 = []
+        self.align2 = []
+        self.aligng = []
+        self.rT1 = []
+        self.rT2 = []
+        self.Escore = []
+        self.Bitscore = []
+        self.index = []
+        self.reward = [1,-1,-1]
+        self.len1 = 0
+        self.len2 = 0
+        self.num = 0
+
+    def set(self, seq1, seq2, path):
+        self.seq1 = seq1
+        self.seq2 = seq2
+        self.rev2 = function.get_reverse(seq2)
+        self.path = path
+        self.len1 = len(seq1)
+        self.len2 = len(seq2)
+        self.num = len(path)
+
+    def postprocessing(self):
+        for i in range(self.num):
+            print(i, "/", self.num,"post-processing")
+            pathx = self.path[i][0][:]
+            pathy = self.path[i][1][:]
+
+            state = 0		# state - 0: go ahead, 1: insertion, 2: deletion, 3: insertion to deletion, 4: deletion to insertion
+            plus = 0
+            minus = 0
+
+            self.path[i][0] = []
+            self.path[i][1] = []
+
+            lastx = -1
+            lasty = -1
+
+            for j in range(len(pathx)):
+                if state== 0:
+                    if pathx[j] == lastx:
+                        state = 2
+                        plus = 0
+                        minus = 1
+                    elif pathy[j] == lasty:
+                        state = 1
+                        plus = 1
+                        minus = 0
+                    else:
+                        self.path[i][0].append(pathx[j])
+                        self.path[i][1].append(pathy[j])
+                        state = 0
+                        plus = 0
+                        minus = 0
+                elif state == 1:
+                    if pathx[j] == lastx:
+                        state = 3
+                        minus += 1
+                    elif pathy[j] == lasty:
+                        plus += 1
+                    else:
+                        self.path[i][0] += pathx[j-plus:j+1]
+                        self.path[i][1] += pathy[j-plus:j+1]
+                        state = 0
+                        plus = 0
+                        minus = 0
+                elif state == 2:
+                    if pathx[j] == lastx:
+                        minus += 1
+                    elif pathy[j] == lasty:
+                        state = 4
+                        plus += 1
+                    else:
+                        self.path[i][0] += pathx[j-minus:j+1]
+                        self.path[i][1] += pathy[j-minus:j+1]
+                        state = 0
+                        plus = 0
+                        minus = 0
+                elif state == 3:
+                    if pathx[j] == lastx:
+                        minus += 1
+                        if plus == minus:
+                            self.path[i][0] += pathx[j-plus-minus+1:j-minus+1]
+                            self.path[i][1] += pathy[j-minus+1:j+1]
+                            state = 0
+                            plus = 0
+                            minus = 0
+                    elif pathy[j] == lasty:
+                        self.path[i][0] += pathx[j-plus-minus:j-2*minus]
+                        self.path[i][1] += pathy[j-plus-minus:j-2*minus]
+                        self.path[i][0] += pathx[j-2*minus:j-minus]
+                        self.path[i][1] += pathy[j-minus:j]
+                        state = 1
+                        plus = 1
+                        minus = 0
+                    else:
+                        self.path[i][0] += pathx[j-plus-minus:j-2*minus]
+                        self.path[i][1] += pathy[j-plus-minus:j-2*minus]
+                        self.path[i][0] += pathx[j-2*minus:j-minus]
+                        self.path[i][1] += pathy[j-minus:j]
+                        self.path[i][0].append(pathx[j])
+                        self.path[i][1].append(pathy[j])
+                        state = 0
+                        plus = 0
+                        minus = 0
+                elif state == 4:
+                    if pathx[j] == lastx:
+                        self.path[i][0] += pathx[j-plus-minus:j-2*plus]
+                        self.path[i][1] += pathy[j-plus-minus:j-2*plus]
+                        self.path[i][0] += pathx[j-plus:j]
+                        self.path[i][1] += pathy[j-2*plus:j-plus]
+                        state = 2
+                        plus = 0
+                        minus = 1
+                    elif pathy[j] == lasty:
+                        plus += 1
+                        if plus == minus:
+                            self.path[i][0] += pathx[j-plus+1:j+1]
+                            self.path[i][1] += pathy[j-plus-minus+1:j-plus+1]
+                            state = 0
+                            plus = 0
+                            minus = 0
+                    else:
+                        self.path[i][0] += pathx[j-plus-minus:j-2*plus]
+                        self.path[i][1] += pathy[j-plus-minus:j-2*plus]
+                        self.path[i][0] += pathx[j-plus:j]
+                        self.path[i][1] += pathy[j-2*plus:j-plus]
+                        self.path[i][0].append(pathx[j])
+                        self.path[i][1].append(pathy[j])
+                        state = 0
+                        plus = 0
+                        minus = 0
+
+                lastx = pathx[j]
+                lasty = pathy[j]
+
+    def rescoring(self):
+        self.rT1 = []
+        self.rT2 = []
+        self.align1 = []
+        self.align2 = []
+        for i in range(self.num):
+            print(i, "/", self.num,"rescoring")
+            if self.path[i][1][0] < self.path[i][1][-1]:
+                pathx = [-1]+self.path[i][0][:]
+                pathy = [-1]+self.path[i][1][:]
+                gapx = np.where(np.array(pathx[1:])==np.array(pathx[:-1]))
+                gapy = np.where(np.array(pathy[1:])==np.array(pathy[:-1]))
+                tempx = np.array(list(self.seq1))
+                tempy = np.array(list(self.seq2))
+                strx = tempx[self.path[i][0]]
+                stry = tempy[self.path[i][1]]
+
+                strg = "|"*np.size(self.path[i][0])
+                strg = np.array(list(strg))
+            
+                strx[gapx] = "-"
+                stry[gapy] = "-"
+
+                diff = np.where(strx!=stry)
+
+                strg[diff] = " "
+                strg[gapx] = "-"
+                strg[gapy] = "+"
+
+                self.align1.append(str(strx.tostring().decode("utf-16").replace("\x00","")))
+                self.align2.append(str(stry.tostring().decode("utf-16").replace("\x00","")))
+                self.aligng.append(str(strg.tostring().decode("utf-16").replace("\x00","")))
+
+                rT1 = self.reward[0]*np.sum(strx==stry)+self.reward[1]*(np.sum(strx!=stry)-np.size(gapx)-np.size(gapx))+self.reward[2]*np.size(gapx)+self.reward[2]*np.size(gapy)
+                rT2 = np.sum(strx==stry)
+
+                self.rT1.append(rT1)
+                self.rT2.append(rT2)
+            else:
+                pathx = [-1]+self.path[i][0][:]
+                pathy = [-1]+self.path[i][1][:]
+                gapx = np.where(np.array(pathx[1:])==np.array(pathx[:-1]))
+                gapy = np.where(np.array(pathy[1:])==np.array(pathy[:-1]))
+                tempx = np.array(list(self.seq1))
+                tempy = np.array(list(self.rev2))
+                strx = tempx[self.path[i][0]]
+                stry = tempy[self.path[i][1]]
+
+                strg = "|"*np.size(self.path[i][0])
+                strg = np.array(list(strg))
+            
+                strx[gapx] = "-"
+                stry[gapy] = "-"
+
+                diff = np.where(strx!=stry)
+
+                strg[diff] = " "
+                strg[gapx] = "-"
+                strg[gapy] = "+"
+
+                self.align1.append(str(strx.tostring().decode("utf-16").replace("\x00","")))
+                self.align2.append(str(stry.tostring().decode("utf-16").replace("\x00","")))
+                self.aligng.append(str(strg.tostring().decode("utf-16").replace("\x00","")))
+
+                rT1 = self.reward[0]*np.sum(strx==stry)+self.reward[1]*(np.sum(strx!=stry)-np.size(gapx)-np.size(gapx))+self.reward[2]*np.size(gapx)+self.reward[2]*np.size(gapy)
+                rT2 = np.sum(strx==stry)
+
+                self.rT1.append(rT1)
+                self.rT2.append(rT2)
+
+    def sortbyEscore(self):
+        K = 0.0005
+        Lambda = 0.1451
+        self.Escore = []
+        self.index = []
+
+        for i in range(self.num):
+            self.Escore.append(K*np.abs(self.path[i][0][-1]-self.path[i][0][0])*np.abs(self.path[i][1][-1]-self.path[i][1][0])*np.exp(-Lambda * self.rT1[i]))
+
+        #print(self.Escore)
+        self.index = list(np.argsort(np.array(self.Escore)))
+
+    def sortbyBitscore(self):
+        K = 0.0005
+        Lambda = 0.1451
+        self.Bitscore = []
+        self.index = []
+
+        for i in range(self.num):
+            self.Bitscore.append((Lambda*self.rT1[i]-np.log(K))/np.log(2))
+
+        #print(self.Bitscore)
+        self.index = list(np.argsort(np.array(self.Bitscore)))[::-1]
+
+
+    def print(self, file):
+        self.postprocessing()
+        self.rescoring()
+        #self.sortbyEscore()
+        self.sortbyBitscore()
+
+        for i in range(self.num):
+            print(i, "/", self.num, "print alignment")
+            file.write(str(i)+"th alignment\n")
+            file.write("score : "+str(self.rT1[self.index[i]])+"\n")
+            #file.write("E-value : "+str(self.Escore[self.index[i]])+"\n")
+            file.write("Bit-score : "+str(self.Bitscore[self.index[i]])+"\n")
+            file.write("exact match : "+str(self.rT2[self.index[i]])+"\n")
+            file.write("seq1 : "+str(self.path[self.index[i]][0][0])+"-"+str(self.path[self.index[i]][0][-1])+"\n")
+            file.write("seq2 : "+str(self.path[self.index[i]][1][0])+"-"+str(self.path[self.index[i]][1][-1])+"\n")
+            for j in range(int(np.ceil(np.size(self.path[self.index[i]][0])/60))):
+                file.write("\n")
+                file.write('{:<20}'.format("Query "+str(self.path[self.index[i]][0][60*j])))
+                file.write(self.align1[self.index[i]][60*j:60*j+60])
+                file.write("\n")
+                file.write('{:<20}'.format(""))
+                file.write(self.aligng[self.index[i]][60*j:60*j+60])
+                file.write("\n")
+                file.write('{:<20}'.format("Sbjct "+str(self.path[self.index[i]][1][60*j])))
+                file.write(self.align2[self.index[i]][60*j:60*j+60])
+                file.write("\n")
+
+            file.write("\n")
+=======
+>>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
