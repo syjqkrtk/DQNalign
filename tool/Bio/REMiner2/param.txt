@@ -1,0 +1,15 @@
+QUERY_FILE	/home/umls/SSD/ssd/Git/DQNalign/tool/Bio/REMiner2/seq1.txt	// input file name (name size limit: 256)
+DATABASE_FILE	/home/umls/SSD/ssd/Git/DQNalign/tool/Bio/REMiner2/seq2.txt	// input file name (name size limit: 256)
+WORD_SIZE	14		// WORD size (W, supported to 16 )
+ALLOW_SIZE	1		// allowable size per word (m, suport 0 or 1)
+SPACE_SIZE	2		// SPACE size (SP)
+MIN_SEED_LEN	28		// minimum length to be a seed (L)
+SCORE_MAT	1		// match score (integer)
+SCORE_MIS	-2		// mismatch score (integer)
+SCORE_THR	-10		// score threshold (in ungapped extension)
+GREEDY_X	30		// value of X in greedy algorithm (in gapped extension)
+GREEDY_MIN_L	-10240		// maximum value of insertion
+GREEDY_MAX_U	10240		// maximum value of deletion
+WD_SIZE		20		// window size for filtering
+T_THR		0.6		// threshold for filtering
+ALIGN_MODE	1		// alignment mode (0: entire alignment process with REMINER2, 1: do until seeding process, extension process will be done at outer program)

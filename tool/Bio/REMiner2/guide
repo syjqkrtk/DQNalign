@@ -1,0 +1,12 @@
+g++ -c -fPIC -o main.o main.cpp
+g++ -c -fPIC -o extension.o extension.cpp
+g++ -c -fPIC -o miner.o miner.cpp
+g++ -c -fPIC -o preprocess.o preprocess.cpp
+g++ -c -fPIC -o seed.o seed.cpp
+g++ -c -fPIC -o structure.o structure.cpp
+g++ -c -fPIC -o timelog.o timelog.cpp
+
+g++ -pie -Wl,-soname,REMinerII -o REMinerII main.o extension.o miner.o preprocess.o seed.o structure.o timelog.o -fopenmp
+
+g++ -shared -Wl,-soname,REMinerII.so -o REMinerII.so main.o extension.o miner.o preprocess.o seed.o structure.o timelog.o -fopenmp
+

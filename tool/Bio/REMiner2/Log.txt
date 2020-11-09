@@ -1,0 +1,37 @@
+
+
+************************************************************************
+REMiner Ver.2 (START) : 8/7, 20:16:0
+    Make Qry & Database File (START) : 8/7, 20:16:0
+    Make Qry & Database File ( END ) : 8/7, 20:16:0 (0)
+    Get Data (START) : 8/7, 20:16:0
+    Get Data ( END ) : 8/7, 20:16:0 (0)
+  Preprocessing (START) : 8/7, 20:16:0
+    Case Matching (START) : 8/7, 20:16:0
+    Case Matching ( END ) : 8/7, 20:16:0 (0)
+    Low Complexity Filtering (START) : 8/7, 20:16:0
+    Low Complexity Filtering ( END ) : 8/7, 20:16:0 (0)
+    Reverse Complement (START) : 8/7, 20:16:0
+    Reverse Complement ( END ) : 8/7, 20:16:0 (0)
+  Preprocessing ( END ) : 8/7, 20:16:0 (0)
+  Seeding & Extension (START) : 8/7, 20:16:0
+    Word Matching (START) : 8/7, 20:16:1
+    Word Matching ( END ) : 8/7, 20:16:1 (0)
+    Seeding & Extension (Query) (START) : 8/7, 20:16:1
+    Seeding & Extension (Query) ( END ) : 8/7, 20:16:1 (0)
+    Seeding & Extension (RC) (START) : 8/7, 20:16:1
+    Seeding & Extension (RC) ( END ) : 8/7, 20:16:1 (0)
+  Seeding & Extension ( END ) : 8/7, 20:16:1 (1)
+REMiner Ver.2 ( END ) : 8/7, 20:16:1 (1)
+
+Input File Name: /home/umls/SSD/ssd/Git/DQNalign/tool/Bio/REMiner2/seq1.txt
+Input Data Length: 7207 Bytes
+Input File Name: /home/umls/SSD/ssd/Git/DQNalign/tool/Bio/REMiner2/seq2.txt
+Input Data Length: 7194 Bytes
+W: 14, m: 1, SP: 2, L: 28
+SCORE: Match (1), Mismatch (-2), Threshold (-10), X (30)
+Filtering: Window Size (20), Score Threshold (0.60)
+Time Log Length: 1036 Bytes (MAX: 2048 Bytes)
+************************************************************************
+
+
