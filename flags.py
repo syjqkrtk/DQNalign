@@ -11,5 +11,3 @@ tf.app.flags.DEFINE_boolean('show_align', False, """Show alignment figure""")
 tf.app.flags.DEFINE_boolean('print_align', True, """Print alignment results""")
 tf.app.flags.DEFINE_boolean('display_process', False, """Show progress state""")
 tf.app.flags.DEFINE_boolean('use_GPU', True, """Usage of GPU or CPU""")
-
-test
