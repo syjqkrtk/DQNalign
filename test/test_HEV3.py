@@ -17,19 +17,19 @@ param = import_module('DQNalign.param.'+FLAGS.network_set)
 class game_env():
     def __init__(self):
         self.l_seq = [8000, 8000]
-        self.win_size = 10
+        self.win_size = 100
+        self.freq_size = 10
         self.maxI = 10 # maximum indel length
         self.p = [0.1,0.02] # The probability of SNP, indel
-        self.reward = [1,-1,-1] # Alignment score of the match, mismatch, indel
-
-        self.path = "./network/"+FLAGS.model_name+"/"+str(self.win_size)+'_'+str(param.n_step)
+        self.reward = [0.5,-0.5,-1] # Alignment score of the match, mismatch, indel
+        self.path = "./network/"+FLAGS.model_name+"/"+str(self.win_size)+'_'+str(self.freq_size)
 
 train_env = game_env()
 
 class model():
     def __init__(self):
         self.param = param
-        self.env = Pairwise(train_env,-1,Z=self.param.Z)
+        self.env = Pairwise(train_env,3,Z=self.param.Z)
         self.LEARNING_RATE = 0.0000001
 
         tf.reset_default_graph()
@@ -43,6 +43,16 @@ class model():
         elif FLAGS.model_name == "SSD":
             self.mainQN = SSDnetwork(self.param.h_size,self.env,"main",self.LEARNING_RATE,self.param.n_step)
             self.targetQN = SSDnetwork(self.param.h_size,self.env,"target",self.LEARNING_RATE,self.param.n_step)
+            self.trainables = tf.trainable_variables()
+            self.targetOps = updateTargetGraph(self.trainables, self.param.tau)
+        elif FLAGS.model_name == "DiffSSD":
+            self.mainQN = DiffSSDnetwork(self.param.h_size,self.env,"main",self.LEARNING_RATE,self.param.n_step)
+            self.targetQN = DiffSSDnetwork(self.param.h_size,self.env,"target",self.LEARNING_RATE,self.param.n_step)
+            self.trainables = tf.trainable_variables()
+            self.targetOps = updateTargetGraph(self.trainables, self.param.tau)
+        elif FLAGS.model_name == "FFTDQN":
+            self.mainQN = FFTDQNnetwork(self.param.h_size,self.env,self.LEARNING_RATE,self.param.n_step)
+            self.targetQN = FFTDQNnetwork(self.param.h_size,self.env,self.LEARNING_RATE,self.param.n_step)
             self.trainables = tf.trainable_variables()
             self.targetOps = updateTargetGraph(self.trainables, self.param.tau)
 
@@ -103,17 +113,17 @@ with tf.Session() as sess:
             if (start1 > 0) and (start2 > 0):
                 agent.set(seq1[start1 - 1::-1]+"A", seq2[start2 - 1::-1]+"A")
                 if FLAGS.show_align and FLAGS.print_align:
-                    rT1, rT2, processingtime, j, dot_plot1 = agent.Global(sess, record)
+                    rT1, rT2, processingtime, j, dot_plot1 = agent.FFTGlobal(sess, record)
                     dot_plot[:start1,:start2] = dot_plot1[::-1,::-1]
                     record.reverse(start1-1,start2-1)
                 elif FLAGS.show_align:
-                    rT1, rT2, processingtime, j, dot_plot1 = agent.Global(sess)
+                    rT1, rT2, processingtime, j, dot_plot1 = agent.FFTGlobal(sess)
                     dot_plot[:start1,:start2] = dot_plot1[::-1,::-1]
                 elif FLAGS.print_align:
-                    rT1, rT2, processingtime, j = agent.Global(sess, record)
+                    rT1, rT2, processingtime, j = agent.FFTGlobal(sess, record)
                     record.reverse(start1-1,start2-1)
                 else:
-                    rT1, rT2, processingtime, j = agent.Global(sess)
+                    rT1, rT2, processingtime, j = agent.FFTGlobal(sess)
             else:
                 rT1 = 0
                 rT2 = 0
@@ -128,18 +138,18 @@ with tf.Session() as sess:
                 agent.set(seq1[start1+lcslen:]+"A",seq2[start2+lcslen:]+"A")
                 if FLAGS.show_align and FLAGS.print_align:
                     index = np.size(record.xtemp)
-                    rT1, rT2, processingtime, j, dot_plot2 = agent.Global(sess,record)
+                    rT1, rT2, processingtime, j, dot_plot2 = agent.FFTGlobal(sess,record)
                     record.shift(index,start1+lcslen,start2+lcslen)
                     dot_plot[start1+lcslen:,start2+lcslen:] = dot_plot2
                 elif FLAGS.show_align:
-                    rT1, rT2, processingtime, j, dot_plot2 = agent.Global(sess)
+                    rT1, rT2, processingtime, j, dot_plot2 = agent.FFTGlobal(sess)
                     dot_plot[start1+lcslen:,start2+lcslen:] = dot_plot2
                 elif FLAGS.print_align:
                     index = np.size(record.xtemp)
-                    rT1, rT2, processingtime, j = agent.Global(sess, record)
+                    rT1, rT2, processingtime, j = agent.FFTGlobal(sess, record)
                     record.shift(index,start1+lcslen,start2+lcslen)
                 else:
-                    rT1, rT2, processingtime, j = agent.Global(sess)
+                    rT1, rT2, processingtime, j = agent.FFTGlobal(sess)
             else:
                 rT1 = 0
                 rT2 = 0

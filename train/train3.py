@@ -16,19 +16,19 @@ class game_env():
     def __init__(self):
         self.l_seq = [2000, 2000]
         self.win_size = 100
-        self.K = 3
+        self.freq_size = 10
         self.maxI = 10 # maximum indel length
         self.p = [0.1,0.02] # The probability of SNP, indel
         self.reward = [0.5,-0.5,-1] # Alignment score of the match, mismatch, indel
-        self.path = "./network/"+FLAGS.model_name+"/"+str(self.win_size)+'_'+str(self.K)
+        self.path = "./network/"+FLAGS.model_name+"/"+str(self.win_size)+'_'+str(self.freq_size)
 
 train_env = game_env()
 
 class model():
     def __init__(self):
         self.param = param
-        self.env = Pairwise(train_env,2,Z=self.param.Z)
-        self.LEARNING_RATE = 0.000001 #For win_size 30 to 100 : 1e-3 to 1e-5, win_size 200 : 1e-3 to 1e-5, win_size 500 : 1e-3 to 1e-5, win_Size 1000 : 1e-4 to 1e-5
+        self.env = Pairwise(train_env,3,Z=self.param.Z)
+        self.LEARNING_RATE = 0.0001 #For win_size 30 to 100 : 1e-3 to 1e-5, win_size 200 : 1e-3 to 1e-5, win_size 500 : 1e-3 to 1e-5, win_Size 1000 : 1e-4 to 1e-5
 
         tf.reset_default_graph()
         
@@ -46,6 +46,11 @@ class model():
         elif FLAGS.model_name == "DiffSSD":
             self.mainQN = DiffSSDnetwork(self.param.h_size,self.env,"main",self.LEARNING_RATE,self.param.n_step)
             self.targetQN = DiffSSDnetwork(self.param.h_size,self.env,"target",self.LEARNING_RATE,self.param.n_step)
+            self.trainables = tf.trainable_variables()
+            self.targetOps = updateTargetGraph(self.trainables, self.param.tau)
+        elif FLAGS.model_name == "FFTDQN":
+            self.mainQN = FFTDQNnetwork(self.param.h_size,self.env,self.LEARNING_RATE,self.param.n_step)
+            self.targetQN = FFTDQNnetwork(self.param.h_size,self.env,self.LEARNING_RATE,self.param.n_step)
             self.trainables = tf.trainable_variables()
             self.targetOps = updateTargetGraph(self.trainables, self.param.tau)
 
@@ -83,7 +88,7 @@ with tf.Session() as sess:
         
     startdate = time.localtime()
     for i in range(train_model.param.num_episodes):
-        rT1, rT2, processingtime, j = agent.DiffGlobal(sess)
+        rT1, rT2, processingtime, j = agent.FFTGlobal(sess)
         print("Train scenario  :",i, agent.total_steps, rT1, rT2, str(float("{0:.2f}".format(processingtime)))+"s")
 
         # Periodically test the model.
@@ -98,7 +103,7 @@ with tf.Session() as sess:
             start1,start2,lcslen = lcs.longestSubstring(seq1,seq2)
             if (start1 > 0) and (start2 > 0):
                 agent.set(seq1[start1 - 1::-1]+"A", seq2[start2 - 1::-1]+"A")
-                rT1, rT2, processingtime1, j = agent.DiffGlobal(sess)
+                rT1, rT2, processingtime1, j = agent.FFTGlobal(sess)
             else:
                 rT1 = 0
                 rT2 = 0
@@ -110,7 +115,7 @@ with tf.Session() as sess:
             
             if (start1+lcslen < len(seq1)) and (start2+lcslen < len(seq2)):
                 agent.set(seq1[start1+lcslen:]+"A",seq2[start2+lcslen:]+"A")
-                rT1, rT2, processingtime2, j = agent.DiffGlobal(sess)
+                rT1, rT2, processingtime2, j = agent.FFTGlobal(sess)
             else:
                 rT1 = 0
                 rT2 = 0
@@ -125,7 +130,7 @@ with tf.Session() as sess:
             start1,start2,lcslen = lcs.longestSubstring(seq1,seq2)
             if (start1 > 0) and (start2 > 0):
                 agent.set(seq1[start1 - 1::-1]+"A", seq2[start2 - 1::-1]+"A")
-                rT1, rT2, processingtime1, j = agent.DiffGlobal(sess)
+                rT1, rT2, processingtime1, j = agent.FFTGlobal(sess)
             else:
                 rT1 = 0
                 rT2 = 0
@@ -137,7 +142,7 @@ with tf.Session() as sess:
             
             if (start1+lcslen < len(seq1)) and (start2+lcslen < len(seq2)):
                 agent.set(seq1[start1+lcslen:]+"A",seq2[start2+lcslen:]+"A")
-                rT1, rT2, processingtime2, j = agent.DiffGlobal(sess)
+                rT1, rT2, processingtime2, j = agent.FFTGlobal(sess)
             else:
                 rT1 = 0
                 rT2 = 0
@@ -152,7 +157,7 @@ with tf.Session() as sess:
             start1,start2,lcslen = lcs.longestSubstring(seq1,seq2)
             if (start1 > 0) and (start2 > 0):
                 agent.set(seq1[start1 - 1::-1]+"A", seq2[start2 - 1::-1]+"A")
-                rT1, rT2, processingtime1, j = agent.DiffGlobal(sess)
+                rT1, rT2, processingtime1, j = agent.FFTGlobal(sess)
             else:
                 rT1 = 0
                 rT2 = 0
@@ -164,7 +169,7 @@ with tf.Session() as sess:
             
             if (start1+lcslen < len(seq1)) and (start2+lcslen < len(seq2)):
                 agent.set(seq1[start1+lcslen:]+"A",seq2[start2+lcslen:]+"A")
-                rT1, rT2, processingtime2, j = agent.DiffGlobal(sess)
+                rT1, rT2, processingtime2, j = agent.FFTGlobal(sess)
             else:
                 rT1 = 0
                 rT2 = 0

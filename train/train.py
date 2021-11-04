@@ -14,12 +14,12 @@ param = import_module('DQNalign.param.'+FLAGS.network_set)
 
 class game_env():
     def __init__(self):
-        self.l_seq = [2000, 2000]
-        self.win_size = 100
+        self.l_seq = [1000, 1000]
+        self.win_size = 50
         self.maxI = 10 # maximum indel length
         self.p = [0.1,0.02] # The probability of SNP, indel
         self.reward = [0.5,-0.5,-1] # Alignment score of the match, mismatch, indel
-        self.path = "./network/"+FLAGS.model_name+"/"+str(self.win_size)+'_'+str(param.n_step)
+        self.path = "./network/"+FLAGS.model_name+"/"+str(self.win_size)+'_'+str(param.n_step)+"/"+FLAGS.exploration
 
 train_env = game_env()
 
@@ -27,7 +27,7 @@ class model():
     def __init__(self):
         self.param = param
         self.env = Pairwise(train_env,-1,Z=self.param.Z)
-        self.LEARNING_RATE = 0.0005 #For win_size 30 to 100 : 1e-3 to 1e-5, win_size 200 : 1e-3 to 1e-5, win_size 500 : 1e-3 to 1e-5, win_Size 1000 : 1e-4 to 1e-5
+        self.LEARNING_RATE = 0.001 #For win_size 30 to 100 : 1e-3 to 1e-5, win_size 200 : 1e-3 to 1e-5, win_size 500 : 1e-3 to 1e-5, win_Size 1000 : 1e-4 to 1e-5
 
         tf.reset_default_graph()
         
@@ -74,17 +74,32 @@ with tf.Session() as sess:
         print('Loading Model...')
         ckpt = tf.train.get_checkpoint_state(train_env.path)
         saver.restore(sess, ckpt.model_checkpoint_path)
-        
+
     startdate = time.localtime()
+
+    filename = "result/"+FLAGS.model_name+"/training%04d%02d%02d%02d%02d%02d_%d_%d.txt" % (
+        startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
+        startdate.tm_sec, train_env.win_size, train_env.maxI)
+    file = open(filename,"a")
+    file.write(FLAGS.exploration+"\n")
+    file.close()
+
+    filename2 = "result/"+FLAGS.model_name+"/training2%04d%02d%02d%02d%02d%02d_%d_%d.txt" % (
+        startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
+        startdate.tm_sec, train_env.win_size, train_env.maxI)
+    file = open(filename2,"a")
+    file.write(FLAGS.exploration+"\n")
+    file.close()
+        
     for i in range(train_model.param.num_episodes):
         rT1, rT2, processingtime, j = agent.Global(sess)
         print("Train scenario  :",i, agent.total_steps, rT1, rT2, str(float("{0:.2f}".format(processingtime)))+"s")
+        file = open(filename2,"a")
+        file.write(str(rT2)+" "+str(processingtime)+"\n")
+        file.close()
 
         # Periodically test the model.
         if i % train_model.param.test_freq == 0 and agent.total_steps > agent.param.pre_train_steps:
-            filename = "result/"+FLAGS.model_name+"/training%04d%02d%02d%02d%02d%02d_%d_%d.txt" % (
-                startdate.tm_year, startdate.tm_mon, startdate.tm_mday, startdate.tm_hour, startdate.tm_min,
-                startdate.tm_sec, train_env.win_size, train_env.maxI)
             file = open(filename,"a")
 
             seq1 = seq[0]
