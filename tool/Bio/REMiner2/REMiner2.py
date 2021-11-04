@@ -34,7 +34,7 @@ def SetParameter(mode, fname1 = os.path.join(dirname,"seq1.txt"), fname2 = os.pa
     file.write("WORD_SIZE	14		// WORD size (W, supported to 16 )\n")
     file.write("ALLOW_SIZE	1		// allowable size per word (m, suport 0 or 1)\n")
     file.write("SPACE_SIZE	2		// SPACE size (SP)\n")
-    file.write("MIN_SEED_LEN	25		// minimum length to be a seed (L)\n")
+    file.write("MIN_SEED_LEN	100		// minimum length to be a seed (L)\n")
     file.write("SCORE_MAT	1		// match score (integer)\n")
     file.write("SCORE_MIS	-2		// mismatch score (integer)\n")
     file.write("SCORE_THR	-10		// score threshold (in ungapped extension)\n")

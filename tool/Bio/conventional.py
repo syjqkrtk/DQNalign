@@ -17,10 +17,10 @@ class Clustal():
         #self.window = env.window
         #self.wind_gap = env.wind_gap
 
-        self.K = 7
-        self.signif = 500
-        self.window = 5
-        self.wind_gap = 5
+        #self.K = 7
+        #self.signif = 500
+        #self.window = 5
+        #self.wind_gap = 5
 
         #self.K = 10
         #self.signif = 100
@@ -32,10 +32,10 @@ class Clustal():
         #self.window = 50
         #self.wind_gap = 5
 
-        #self.K = 2
-        #self.signif = 4
-        #self.window = 4
-        #self.wind_gap = 5
+        self.K = 2
+        self.signif = 4
+        self.window = 4
+        self.wind_gap = 5
 
         #self.K = 13
         #self.signif = 50
@@ -493,11 +493,11 @@ class MUMmer():
         #self.max_gap = env.max_gap
         #self.min_cluster = env.min_cluster
 
-        #self.max_gap = 90
-        #self.min_cluster = 20
+        self.max_gap = 90
+        self.min_cluster = 20
 
-        self.max_gap = 100000
-        self.min_cluster = 10000
+        #self.max_gap = 100000
+        #self.min_cluster = 10000
 
         self.seq1file = seq1file
         self.seq2file = seq2file
@@ -605,7 +605,6 @@ class MUMmer():
 
 class BLAST():
     # The BLAST function is not implemented in this version
-<<<<<<< HEAD
     def __init__(self, env, seq1file, seq2file, name = ['seq_1','seq_2'], outputname='ref_qry'):
         # Parameters for BLAST algorithms are written in env
         self.X = 100
@@ -619,14 +618,6 @@ class BLAST():
         self.aligns1 = []
         self.aligns2 = []
         self.score = 0
-=======
-
-    def __init__(self, env, seq1, seq2):
-        # Parameters for BLAST algorithms are written in env
-        self.K = env.K
-        self.encode(seq1,seq2)
-
->>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
 
     def encode(self, seq1, seq2):
         if np.size(seq1)>0 and np.size(seq2)>0:
@@ -653,12 +644,9 @@ class BLAST():
         self.y = 0
         self.sizeS1 = np.size(self.seq1)
         self.sizeS2 = np.size(self.seq2)
-<<<<<<< HEAD
 
     def align(self):
         os.system("blastn -export_search_strategy blast_param_%d.txt -gapopen 2 -gapextend 2 -reward 1 -penalty -1 -query %s -subject %s -xdrop_ungap %d -xdrop_gap %d -xdrop_gap_final %d -out %s.out" % (self.X,  self.seq1file, self.seq2file, self.X, self.X, self.X, self.outputname))
 
     def print(self, name):
         os.system("cp %s.out %s.out" % (self.outputname, name))
-=======
->>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2

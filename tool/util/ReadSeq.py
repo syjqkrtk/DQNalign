@@ -2,10 +2,26 @@ import numpy as np
 
 def readseq(filename):
     file = open(filename,'r')
+    seq = file.read().replace('\n', '').replace(' ','').upper()
+    file.close()
+
+    return seq
+
+def readseq2(filename):
+    file = open(filename,'r')
+    name = file.readline().replace('\n', '').replace('>','')
     seq = file.read().replace('\n', '')
     file.close()
 
     return seq
+
+def splitseq2(filename):
+    file = open(filename,'r')
+    name = file.readline().replace('\n', '').replace('>','')
+    seq = file.read().replace('\n', '')
+    file.close()
+
+    return name
 
 def readseqs(filename):
     Real = open('lib/HEV.txt','r')
@@ -39,7 +55,12 @@ def splitseqs(filename):
 
     return HEVname
 
-<<<<<<< HEAD
+def seqtofasta(name, seq):
+    Real = open('lib/Mammal2/'+name+'.fasta','w')
+    file.write(">"+name+"\n")
+    file.write(seq)
+    file.close()
+
 def inttoseq(data):
     seq = []
     for i in range(len(data)):
@@ -54,8 +75,6 @@ def inttoseq(data):
 
     return data
 
-=======
->>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
 def seqtoint(seq):
     data = []
     for i in range(len(seq)):

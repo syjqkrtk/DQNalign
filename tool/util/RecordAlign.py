@@ -1,8 +1,5 @@
 import numpy as np
-<<<<<<< HEAD
 import DQNalign.tool.util.function as function
-=======
->>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
 
 class record_align():
     def __init__(self):
@@ -130,11 +127,7 @@ class record_align():
         self.Stemp = ""
         self.xtemp = []
         self.ytemp = []
-<<<<<<< HEAD
         state = 0		# state - 0: go ahead, 1: insertion, 2: deletion, 3: insertion to deletion, 4: deletion to insertion
-=======
-        state = 0
->>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
         plus = 0
         minus = 0
 
@@ -311,7 +304,6 @@ class record_align():
             file.write('{:<20}'.format("Sbjct "+str(self.ytemp[60*i])))
             file.write(self.Stemp[60*i:60*i+60]+"\n")
             file.write("\n")
-<<<<<<< HEAD
 
 class record_path():
     def __init__(self):
@@ -578,5 +570,3 @@ class record_path():
                 file.write("\n")
 
             file.write("\n")
-=======
->>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2

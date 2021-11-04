@@ -15,7 +15,6 @@ def zipfian(s,N):
             temp = temp - temp2
 
     return 0
-<<<<<<< HEAD
 
 def check_exist(path, uX1, uX2, uY1, uY2):
     #이거 새로 함수 짜긴 해야할듯
@@ -61,5 +60,3 @@ def sortalign(uX1, uX2, uY1, uY2):
     index = np.argsort(diff)[::-1]
     
     return list(tX1[index]), list(tX2[index]), list(tY1[index]), list(tY2[index])
-=======
->>>>>>> aa3cc47a779f10b4c9f586ff4d9f620328b6dda2
